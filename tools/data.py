@@ -61,7 +61,7 @@ SITES = [
       gallery=[("Concept", "linda-c1", "The corner at dusk"), ("Concept", "linda-c2", "The approach"), ("Concept", "linda-c3", "The entrance"), ("Concept", "linda-c4", "From above"), ("Current state", "linda-s1", "The site from above"), ("Current state", "linda-s2", "The frame"), ("Current state", "linda-s3", "The frame · side"), ("Current state", "linda-s4", "The structure"), ("Current state", "linda-s5", "Ground floor")],
       short="One villa, three living rooms, Asokoro."),
 
- dict(id="d06", n="06", approx="district", gmaps="https://www.google.com/maps/search/?api=1&query=2%20Olakunle%20Gidado%20Street%2C%20Guzape%2C%20Abuja", ll=(9.011248, 7.507273), addr="2 Olakunle Gidado Street, Guzape", name="Olakunle Gidado", scheme="", street="2 Olakunle Gidado Street", plot="",
+ dict(id="d06", n="06", approx="", gmaps="https://maps.app.goo.gl/csD7tFHzx3GYt2x9A", ll=(9.009516, 7.497423), addr="2 Olakunle Gidado Street, Guzape", name="Olakunle Gidado", scheme="", street="2 Olakunle Gidado Street", plot="",
       district="Guzape", city="Abuja", status="Ready", dev="", arch="",
       price="₦1.5bn – ₦1.8bn", pmin=1500, pmax=1800, units="26", avail="1", beds="5",
       types=[("Detached villa", "5 bedrooms · 2 BQ", "", "1", "₦1.5bn – ₦1.8bn")],
