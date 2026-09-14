@@ -218,6 +218,29 @@ body.ready .ticker{opacity:1}
 .lm-pop .a{color:var(--ash);font-size:12px}
 .lm-pop .p{font-family:var(--fd);font-size:15px;margin-top:8px}
 .lm-pop .x{display:flex;gap:14px;margin-top:12px;font-size:10px;letter-spacing:.18em;text-transform:uppercase;font-weight:500;color:var(--brass-hi)}
+.map-h .t-3 em{color:var(--acc-hi)}
+.lm-panel{border:1px solid var(--rule);background:var(--panel);display:flex;flex-direction:column;max-height:clamp(460px,64vh,720px);overflow:auto;scrollbar-width:thin}
+.lm-grp{border-bottom:1px solid var(--rule-2)}
+.lm-gh{display:flex;justify-content:space-between;gap:12px;padding:12px 18px 8px;font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--mute);background:rgba(239,231,216,.03)}
+.lm-panel .mrow{display:grid;grid-template-columns:26px 1fr auto;gap:14px;align-items:center;text-align:left;padding:12px 18px;border-top:1px solid var(--rule-2);width:100%;transition:background .3s,color .3s}
+.lm-panel .mrow:hover{background:rgba(239,231,216,.04)}
+.lm-panel .mrow[aria-pressed="true"]{background:rgba(184,147,90,.12)}
+.lm-panel .mrow .k{width:26px;height:26px;border-radius:50%;background:var(--brass);color:var(--onyx);font:400 11px/25px var(--fd);text-align:center;letter-spacing:.06em;border:1px solid var(--onyx);box-shadow:0 0 0 3px rgba(184,147,90,.18)}
+.lm-panel .mrow .t{font-size:14.5px;line-height:1.25}
+.lm-panel .mrow .t small{display:block;font-size:11.5px;color:var(--mute);margin-top:3px}
+.lm-panel .mrow .dist{font-size:11px;letter-spacing:.06em;color:var(--mute);white-space:nowrap;text-align:right}
+.lm-panel .mrow .dist b{font-family:var(--fd);font-weight:400;font-size:15px;color:var(--fg);letter-spacing:0}
+.lm-note{padding:14px 18px;font-size:12px;line-height:1.55;color:var(--mute);margin-top:auto}
+.lm-hint{position:absolute;left:50%;top:14px;transform:translateX(-50%);z-index:500;font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--ivory);background:rgba(11,10,8,.72);border:1px solid var(--rule);padding:8px 14px;pointer-events:none;transition:opacity .5s;white-space:nowrap}
+.lmap-wrap.wheel .lm-hint,.lmap-wrap.failed .lm-hint{opacity:0}
+.lmap-wrap .lm-ref{width:0!important;height:0!important;margin:0!important;border:0;background:none}
+.lmap-wrap .lm-ref i{position:absolute;left:-5px;top:-5px;width:10px;height:10px;border-radius:50%;background:var(--onyx);border:1.5px solid var(--ivory);opacity:.85}
+.lmap-wrap .lm-ref.dest i{background:var(--ivory);border-color:var(--onyx);width:12px;height:12px;left:-6px;top:-6px}
+.lmap-wrap .lm-ref b{position:absolute;left:11px;top:-8px;white-space:nowrap;font:500 9.5px/16px var(--fs);letter-spacing:.14em;text-transform:uppercase;color:rgba(239,231,216,.8);text-shadow:0 0 4px #0b0a08,0 0 8px #0b0a08}
+.lmap-wrap.far .lm-ref:not(.dest) b{opacity:0}
+.lmap-wrap .leaflet-tooltip{background:var(--umber);color:var(--ivory);border:1px solid var(--rule);border-radius:0;font:400 11px/1.4 var(--fs);letter-spacing:.06em;box-shadow:none}
+.lmap-wrap .leaflet-tooltip::before{display:none}
+@media (max-width:900px){.lm-panel{max-height:420px}}
 .map-fb{position:absolute;inset:0;padding:clamp(20px,3vw,36px);overflow:auto;background:var(--panel)}
 .map-fb p{margin:14px 0 18px;color:var(--mute);max-width:52ch;font-size:14px;line-height:1.6}
 .map-fb .fbrows{border-top:1px solid var(--rule)}
@@ -228,7 +251,7 @@ body.ready .ticker{opacity:1}
 .map-fb .fbrows .d,.map-side .districts .d{font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--mute);white-space:nowrap}
 .map-side p{color:var(--mute);font-size:14.5px;line-height:1.65}
 .map-side .districts{margin-top:18px;border-top:1px solid var(--rule)}
-@media (max-width:900px){.map-g{grid-template-columns:1fr}.lmap-wrap{height:min(70vh,520px)}}
+@media (max-width:900px){.map-g{grid-template-columns:1fr}.lmap-wrap{height:min(70vh,520px)}.lm-hint{display:none}}
 
 /* ledger */
 .ledger-h{display:flex;justify-content:space-between;align-items:end;gap:20px;margin-top:clamp(64px,9vh,110px);flex-wrap:wrap}
@@ -561,12 +584,35 @@ def brief():
  </div></div>
 </section>'''
 
+LANDMARKS = [
+ dict(id="cbd", n="Central Business District", s="Central Bank of Nigeria, Tafawa Balewa Way", ll=[9.0508926, 7.4929880], city="Abuja", dest=True),
+ dict(id="hilton", n="Transcorp Hilton", s="Zambezi Crescent, Maitama", ll=[9.074966, 7.494881], city="Abuja"),
+ dict(id="assembly", n="National Assembly", s="Three Arms Zone", ll=[9.068124, 7.511193], city="Abuja"),
+ dict(id="wuse", n="Wuse Market", s="Wuse Market Road", ll=[9.068555, 7.465938], city="Abuja"),
+ dict(id="jabi", n="Jabi Lake Mall", s="Jabi", ll=[9.076275, 7.42548], city="Abuja"),
+ dict(id="aso", n="Aso Rock", s="The Presidential Villa below it", ll=[9.08039, 7.536039], city="Abuja"),
+ dict(id="eko", n="Eko Hotel & Suites", s="Adetokunbo Ademola Street, Victoria Island", ll=[6.427074, 3.430286], city="Lagos", dest=True),
+]
+ROUTES = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "routes.json")))
+
 def map_data():
-    return [dict(id=x["id"], n=x["n"], name=x["name"], addr=x["addr"], price=x["price"], status=x["status"], ll=list(x["ll"]) if x["ll"] else None, gmaps=x["gmaps"], approx=x["approx"], city=x["city"]) for x in SITES]
+    return [dict(id=x["id"], n=x["n"], name=x["name"], addr=x["addr"], price=x["price"], status=x["status"], ll=list(x["ll"]) if x["ll"] else None, gmaps=x["gmaps"], approx=x["approx"], city=x["city"], district=x["district"], route=ROUTES.get(x["id"])) for x in SITES]
 
 def glance():
-    rows = "".join(f'<button type="button" class="mrow" data-m="{s["id"]}"><span class="k">{s["n"]}</span><span>{esc(s["name"])}<small>{esc(s["addr"])}</small></span><span class="d">{esc(s["district"])}{", Lagos" if s["city"]=="Lagos" else ""}</span></button>' for s in SITES)
-    fallback = "".join(f'<a href="{esc(s["gmaps"])}" target="_blank" rel="noopener"><span class="k">{s["n"]}</span><span>{esc(s["name"])}<small>{esc(s["addr"])}</small></span><span class="d">Google Maps</span></a>' for s in SITES)
+    ORDER = ["Maitama", "Wuse II", "Katampe Ext.", "Mabushi District", "Guzape", "Asokoro", "Victoria Island, Lagos"]
+    groups = [(g, []) for g in ORDER]
+    for x in SITES:
+        g = x["district"] + (", Lagos" if x["city"] == "Lagos" else "")
+        dict(groups)[g].append(x)
+    panel = ""
+    for g, items in groups:
+        rows = ""
+        for x in items:
+            r = ROUTES.get(x["id"], {})
+            dist = f'<span class="dist"><b>{r["km"]}</b> km · <b>{r["min"]}</b> min</span>' if r else '<span class="dist">—</span>'
+            rows += f'<button type="button" class="mrow" data-m="{x["id"]}" aria-pressed="false"><span class="k">{x["n"]}</span><span class="t">{esc(x["name"])}<small>{esc(x["addr"])}{" · approximate" if x["approx"]=="district" else " · nearest pin" if x["approx"]=="nearest" else ""}</small></span>{dist}</button>'
+        panel += f'<div class="lm-grp"><div class="lm-gh"><span>{esc(g)}</span><span>{len(items)} {"address" if len(items)==1 else "addresses"}</span></div>{rows}</div>'
+    fallback = "".join(f'<a href="{esc(x["gmaps"])}" target="_blank" rel="noopener"><span class="k">{x["n"]}</span><span>{esc(x["name"])}<small>{esc(x["addr"])}</small></span><span class="d">Google Maps</span></a>' for x in SITES)
     return f'''
 <section class="pg" id="glance" aria-label="At a glance">
  <div class="wrap">
@@ -578,15 +624,12 @@ def glance():
     <div><div class="v rng">₦350m<small>to</small> ₦6.6bn</div><div class="k">Price range</div></div>
     <div><div class="v num"><span data-count="2">2</span><small>·</small><span data-count="3">3</span><small>·</small><span data-count="5">5</span></div><div class="k">Ready · selling · off-plan</div></div>
   </div>
-  <div class="map-h rv"><div><div class="eyebrow">The map</div><h3 class="t-3">Where each address sits.</h3></div>
-   <div class="map-ctl"><div class="seg" role="group" aria-label="Map layer"><button type="button" data-layer="streets" aria-pressed="true">Streets</button><button type="button" data-layer="aerial" aria-pressed="false">Aerial</button></div><div class="seg" role="group" aria-label="City"><button type="button" data-city="Abuja" aria-pressed="true">Abuja</button><button type="button" data-city="Lagos" aria-pressed="false">Lagos</button></div></div></div>
+  <div class="map-h rv"><div><div class="eyebrow">The map</div><h3 class="t-3">Every address, and the drive to the centre, <em class="t-i">on one map.</em></h3></div>
+   <div class="map-ctl"><div class="seg" role="group" aria-label="Map layer"><button type="button" data-layer="streets" aria-pressed="true">Streets</button><button type="button" data-layer="aerial" aria-pressed="false">Aerial</button></div><div class="seg" role="group" aria-label="View"><button type="button" data-city="Maitama" aria-pressed="false">Maitama</button><button type="button" data-city="Abuja" aria-pressed="true">Abuja</button><button type="button" data-city="Lagos" aria-pressed="false">Lagos</button></div></div></div>
   <div class="map-g">
-   <div class="lmap-wrap night rv" id="lmapwrap"><div id="lmap" aria-label="Interactive map of the ten addresses"></div>
-    <div class="map-fb" id="mapfb" hidden><div class="eyebrow plain">Map</div><p>The interactive map runs on the published site. Each address opens in Google Maps:</p><div class="fbrows">{fallback}</div></div></div>
-   <div class="map-side rv">
-    <p>Four addresses sit in Maitama: Lake Chad Crescent, Agulu Lake Street, Gana Street and Mississippi Street. Wuse II, Katampe Extension, Mabushi District, Guzape and Asokoro take one each, and Cova Manor stands apart in Victoria Island, Lagos. Choose a row to fly to it; each dossier also opens in Google Maps.</p>
-    <div class="districts" id="mrows">{rows}</div>
-   </div>
+   <div class="lmap-wrap night rv" id="lmapwrap"><div id="lmap" aria-label="Interactive map of the ten addresses"></div><div class="lm-hint" id="lmhint">Click the map, then scroll to zoom</div>
+    <div class="map-fb" id="mapfb" hidden><div class="eyebrow plain">Map</div><p>The map could not load here. Each address opens in Google Maps:</p><div class="fbrows">{fallback}</div></div></div>
+   <div class="lm-panel rv" id="mrows">{panel}<div class="lm-note">Distances are by road to the Central Business District (the Central Bank of Nigeria on Tafawa Balewa Way), routed on OpenStreetMap; Cova Manor is measured to the Eko Hotel. Drive times are approximate and off-peak. Choose a row to fly to the address and draw its route.</div></div>
   </div>
   {ledger()}
  </div>
@@ -960,60 +1003,87 @@ lbst.addEventListener('dblclick',e=>{ if(z.s>1) resetZoom(); else { const r=lbst
 lbst.addEventListener('wheel',e=>{ if(!lbOpen) return; e.preventDefault(); const s=Math.max(1,Math.min(4,z.s*(e.deltaY<0?1.12:0.89))); if(s===1){ resetZoom(); return; } z.s=s; applyZoom(); },{passive:false});
 
 
-/* ---------- map (Leaflet, loaded when near) ---------- */
+/* ---------- map (Leaflet, loaded when near; packed tiles in the preview) ---------- */
 (function(){
   const wrap=$('#lmapwrap'); if(!wrap) return;
-  const fb=$('#mapfb'), rowsEl=$('#mrows'), rows={}, markers={}; let map=null, booted=false, streets=null, aerial=null, layer='streets';
+  const fb=$('#mapfb'), rowsEl=$('#mrows'), rows={}, markers={}; let map=null, booted=false, streets=null, aerial=null, route=null, cur=null;
   $$('.mrow',rowsEl).forEach(r=>rows[r.dataset.m]=r);
+  const D=window.GARO_MAP||[], LM=window.GARO_LM||[], PACK=window.__TILES||null;
+  const BLANK='data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
   function fail(){ fb.hidden=false; wrap.classList.add('failed'); }
-  if(window.__NOMAP){ fail(); return; }
   function loadScript(src,cb){ const el=document.createElement('script'); el.src=src; el.async=true; el.onload=cb; el.onerror=fail; document.head.appendChild(el); }
   function boot(){
     if(booted) return; booted=true;
+    if(window.L){ try{ init(); }catch(e){ fail(); if(window.console) console.error(e); } return; }
     let pending=2; const done=()=>{ if(--pending===0){ if(window.L){ try{ init(); }catch(e){ fail(); if(window.console) console.error(e); } } else fail(); } };
     const css=document.createElement('link'); css.rel='stylesheet'; css.href='assets/leaflet/leaflet.css'; css.onload=done; css.onerror=fail; document.head.appendChild(css);
     loadScript('assets/leaflet/leaflet.js',done);
   }
   const lio=new IntersectionObserver(es=>{ if(es.some(e=>e.isIntersecting)){ boot(); lio.disconnect(); } },{rootMargin:'900px 0px'}); lio.observe(wrap);
   const coarse=matchMedia('(pointer:coarse)').matches;
-  const D=window.GARO_MAP||[];
   function init(){
-    map=L.map('lmap',{zoomControl:false,scrollWheelZoom:false,dragging:!coarse,zoomSnap:.5,minZoom:5,maxZoom:19,attributionControl:true});
+    const maxZ=PACK?16:19;
+    map=L.map('lmap',{zoomControl:false,scrollWheelZoom:false,dragging:!coarse,zoomSnap:.5,minZoom:PACK?11:5,maxZoom:maxZ,attributionControl:true});
     map.attributionControl.setPrefix('<a href="https://leafletjs.com" target="_blank" rel="noopener">Leaflet</a>');
     L.control.zoom({position:'topleft'}).addTo(map); L.control.scale({imperial:false,position:'bottomleft',maxWidth:130}).addTo(map);
-    streets=L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxNativeZoom:19,maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors'});
-    aerial=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxNativeZoom:19,maxZoom:19,attribution:'Imagery &copy; Esri, Maxar, Earthstar Geographics'});
+    const OSM='&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors', ESRI='Imagery &copy; Esri, Maxar, Earthstar Geographics';
+    if(PACK){
+      const Packed=L.TileLayer.extend({getTileUrl:function(c){ return this.options.pack[c.z+'/'+c.x+'/'+c.y]||BLANK; }});
+      streets=new Packed('',{pack:PACK.osm,maxZoom:maxZ,attribution:OSM+' · preview map, zoom limited'});
+      aerial=PACK.esri?new Packed('',{pack:PACK.esri,maxZoom:maxZ,attribution:ESRI}):null;
+    } else {
+      streets=L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxNativeZoom:19,maxZoom:19,attribution:OSM});
+      aerial=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxNativeZoom:19,maxZoom:19,attribution:ESRI});
+    }
+    if(!aerial) $$('[data-layer]').forEach(b=>b.closest('.seg').hidden=true);
     streets.addTo(map);
-    let tilesOk=false; streets.on('tileload',()=>{ tilesOk=true; wrap.classList.add('ready'); }); streets.on('tileerror',()=>{ if(!tilesOk) fail(); });
-    setTimeout(()=>{ if(!tilesOk) fail(); },9000);
+    let tilesOk=false; streets.on('tileload',()=>{ tilesOk=true; wrap.classList.add('ready'); }); streets.on('tileerror',()=>{ if(!tilesOk&&!PACK) fail(); });
+    setTimeout(()=>{ if(!tilesOk){ if(PACK) wrap.classList.add('ready'); else fail(); } },9000);
+    map.on('click',()=>{ map.scrollWheelZoom.enable(); wrap.classList.add('wheel'); });
+    map.on('zoomend',()=>wrap.classList.toggle('far',map.getZoom()<13.5)); wrap.classList.add('far');
+    LM.forEach(l=>{
+      L.marker(l.ll,{icon:L.divIcon({className:'lm-ref'+(l.dest?' dest':''),html:'<i></i><b>'+l.n+'</b>',iconSize:[0,0]}),interactive:true,keyboard:false,zIndexOffset:-100}).addTo(map).bindTooltip(l.n+' · '+l.s,{direction:'top',offset:[0,-8]});
+    });
     D.forEach(x=>{
       if(!x.ll) return;
       const ap=x.approx?' ap':'';
-      const m=L.marker(x.ll,{icon:L.divIcon({className:'lm-pin'+ap,html:'<i>'+x.n+'</i><b>'+x.name+'</b>',iconSize:[0,0]}),alt:x.name,riseOnHover:true}).addTo(map);
+      const m=L.marker(x.ll,{icon:L.divIcon({className:'lm-pin'+ap,html:'<i>'+x.n+'</i><b>'+x.name+'</b>',iconSize:[0,0]}),alt:x.name,riseOnHover:true,zIndexOffset:1000}).addTo(map);
       const note=x.approx==='nearest'?'Nearest pin available':x.approx==='street'?'Street-level pin':x.approx==='district'?'District only · exact pin to follow':'';
-      m.bindPopup('<div class="lm-pop"><div class="k">'+x.n+' · '+x.status+'</div><div class="n">'+x.name+'</div><div class="a">'+x.addr+(note?' · '+note:'')+'</div><div class="p">'+x.price+'</div><div class="x"><a href="#'+x.id+'" data-go="'+x.id+'">Dossier</a><a href="'+x.gmaps+'" target="_blank" rel="noopener">Google Maps</a></div></div>',{maxWidth:300,closeButton:true,offset:[0,-6]});
+      const dist=x.route?'<div class="a">'+x.route.km+' km · '+x.route.min+' min to '+(x.city==='Lagos'?'the Eko Hotel':'the Central Business District')+'</div>':'';
+      m.bindPopup('<div class="lm-pop"><div class="k">'+x.n+' · '+x.status+'</div><div class="n">'+x.name+'</div><div class="a">'+x.addr+(note?' · '+note:'')+'</div>'+dist+'<div class="p">'+x.price+'</div><div class="x"><a href="#'+x.id+'" data-go="'+x.id+'">Dossier</a><a href="'+x.gmaps+'" target="_blank" rel="noopener">Google Maps</a></div></div>',{maxWidth:300,closeButton:true,offset:[0,-6]});
       m.on('click',()=>select(x.id,false)); markers[x.id]=m;
     });
-    map.on('zoomend',()=>wrap.classList.toggle('far',map.getZoom()<13.5)); wrap.classList.add('far');
     fitCity('Abuja',true);
   }
+  function drawRoute(x){
+    if(route){ map.removeLayer(route); route=null; }
+    if(!x||!x.route||!x.route.line) return;
+    route=L.layerGroup([L.polyline(x.route.line,{color:'#0b0a08',weight:7,opacity:.55,lineJoin:'round'}),L.polyline(x.route.line,{color:'#e6cb92',weight:3,opacity:.95,lineJoin:'round',dashArray:'1 7',lineCap:'round'})]).addTo(map);
+  }
   function fitCity(city,instant){
-    const pts=D.filter(x=>x.ll&&x.city===city).map(x=>x.ll); if(!pts.length) return;
+    let pts;
+    if(city==='Maitama') pts=D.filter(x=>x.ll&&x.district==='Maitama').map(x=>x.ll);
+    else pts=D.filter(x=>x.ll&&x.city===city).map(x=>x.ll).concat(LM.filter(l=>l.city===city&&l.dest).map(l=>l.ll));
+    if(!pts.length) return;
     $$('[data-city]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.city===city?'true':'false'));
-    if(pts.length===1){ instant?map.setView(pts[0],16):map.flyTo(pts[0],16,{duration:1.8}); return; }
-    const b=L.latLngBounds(pts); instant?map.fitBounds(b,{padding:[48,48]}):map.flyToBounds(b,{padding:[48,48],duration:1.6});
+    if(pts.length===1){ instant?map.setView(pts[0],15):map.flyTo(pts[0],15,{duration:1.8}); return; }
+    const b=L.latLngBounds(pts), o={padding:[44,44],maxZoom:PACK?15:16};
+    instant||rm?map.fitBounds(b,o):map.flyToBounds(b,Object.assign({duration:1.6},o));
   }
   function select(id,fly){
-    for(const k in rows){ rows[k].classList.toggle('on',k===id); const e=markers[k]&&markers[k].getElement(); if(e) e.classList.toggle('on',k===id); }
-    const x=D.find(z=>z.id===id); if(!x||!map) return;
-    if(!x.ll){ return; }
-    $$('[data-city]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.city===x.city?'true':'false'));
+    cur=id;
+    for(const k in rows){ rows[k].setAttribute('aria-pressed',k===id?'true':'false'); rows[k].classList.toggle('on',k===id); const e=markers[k]&&markers[k].getElement(); if(e) e.classList.toggle('on',k===id); }
+    const x=D.find(z=>z.id===id); if(!x||!map||!x.ll) return;
+    const cityBtn=x.district==='Maitama'?'Maitama':x.city; $$('[data-city]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.city===cityBtn?'true':'false'));
+    drawRoute(x);
     const after=()=>markers[id].openPopup();
-    if(fly&&!rm){ map.flyTo(x.ll,x.approx==='district'?14:16,{duration:1.4}); map.once('moveend',after); } else { map.setView(x.ll,x.approx==='district'?14:16); after(); }
+    if(fly&&!rm){ if(x.route&&x.route.line){ map.flyToBounds(L.latLngBounds(x.route.line),{padding:[60,60],maxZoom:PACK?15:16,duration:1.5}); } else map.flyTo(x.ll,x.approx==='district'?14:15,{duration:1.4}); map.once('moveend',after); }
+    else { after(); }
+    rows[id].scrollIntoView({block:'nearest',behavior:'smooth'});
   }
   rowsEl.addEventListener('click',e=>{ const r=e.target.closest('.mrow'); if(!r) return; if(!map){ go(r.dataset.m); return; } select(r.dataset.m,true); });
-  $$('[data-layer]').forEach(b=>b.addEventListener('click',()=>{ if(!map) return; layer=b.dataset.layer; $$('[data-layer]').forEach(x=>x.setAttribute('aria-pressed',x===b?'true':'false')); wrap.classList.toggle('aerial',layer==='aerial'); if(layer==='aerial'){ map.removeLayer(streets); aerial.addTo(map); } else { map.removeLayer(aerial); streets.addTo(map); } }));
-  $$('[data-city]').forEach(b=>b.addEventListener('click',()=>{ if(!map) return; fitCity(b.dataset.city,false); for(const k in rows) rows[k].classList.remove('on'); }));
+  $$('[data-layer]').forEach(b=>b.addEventListener('click',()=>{ if(!map||!aerial) return; const layer=b.dataset.layer; $$('[data-layer]').forEach(x=>x.setAttribute('aria-pressed',x===b?'true':'false')); wrap.classList.toggle('aerial',layer==='aerial'); if(layer==='aerial'){ map.removeLayer(streets); aerial.addTo(map); } else { map.removeLayer(aerial); streets.addTo(map); } }));
+  $$('[data-city]').forEach(b=>b.addEventListener('click',()=>{ if(!map) return; drawRoute(null); map.closePopup(); for(const k in rows){ rows[k].setAttribute('aria-pressed','false'); rows[k].classList.remove('on'); const e=markers[k]&&markers[k].getElement(); if(e) e.classList.remove('on'); } fitCity(b.dataset.city,false); }));
 })();
 
 /* ---------- cursor ---------- */
@@ -1054,7 +1124,7 @@ def build():
 <body>
 '''
     tail = f'''
-<script>window.GARO_MAP={json.dumps(map_data(), ensure_ascii=False)};</script>
+<script>window.GARO_MAP={json.dumps(map_data(), ensure_ascii=False)};window.GARO_LM={json.dumps(LANDMARKS, ensure_ascii=False)};</script>
 <script>{JS}</script>
 </body>
 </html>
@@ -1062,7 +1132,7 @@ def build():
     page = head + content + tail
     with open(os.path.join(ROOT, "index.html"), "w", encoding="utf-8") as f: f.write(page)
     # artifact variant: no document wrapper; title + style at the top
-    art = f'<title>The Garo Portfolio</title>\n<style>{CSS}</style>\n<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gilda+Display&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,300;1,400&family=Instrument+Sans:wght@400;500;600&display=swap">\n' + content + f'\n<script>window.GARO_MAP={json.dumps(map_data(), ensure_ascii=False)};window.__NOMAP=1;</script>\n<script>{JS}</script>\n'
+    art = f'<title>The Garo Portfolio</title>\n<style>{CSS}</style>\n<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gilda+Display&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,300;1,400&family=Instrument+Sans:wght@400;500;600&display=swap">\n' + content + f'\n<script>window.GARO_MAP={json.dumps(map_data(), ensure_ascii=False)};window.GARO_LM={json.dumps(LANDMARKS, ensure_ascii=False)};</script>\n<script>{JS}</script>\n'
     with open(os.path.join(ROOT, "tools", "artifact-src.html"), "w", encoding="utf-8") as f: f.write(art)
     print("index.html", len(page)//1024, "KB")
 

@@ -10,12 +10,34 @@ for n in names:
     if n.endswith(".png"):
         im.thumbnail((1400, 1400)); buf = io.BytesIO(); im.save(buf, "PNG", optimize=True); mime = "image/png"
     else:
-        mx = 1600 if n == "lc-dusk.jpg" else 1200
-        im = im.convert("RGB"); im.thumbnail((mx, mx)); buf = io.BytesIO(); im.save(buf, "JPEG", quality=68 if n == "lc-dusk.jpg" else 60, optimize=True, progressive=True); mime = "image/jpeg"
+        mx = 1600 if n == "lc-dusk.jpg" else 1100
+        im = im.convert("RGB"); im.thumbnail((mx, mx)); buf = io.BytesIO(); im.save(buf, "JPEG", quality=68 if n == "lc-dusk.jpg" else 56, optimize=True, progressive=True); mime = "image/jpeg"
     A[n] = f"data:{mime};base64," + base64.b64encode(buf.getvalue()).decode()
 out = re.sub(r'src="assets/([\w\-.]+)"', r'data-a="\1"', src)
 out = re.sub(r'data-src="assets/([\w\-.]+)"', r'data-src="\1"', out)
-resolver = "<script>window.__A=" + json.dumps(A) + ";document.querySelectorAll('[data-a]').forEach(function(el){el.src=window.__A[el.dataset.a]||''});</script>\n"
+# packed map tiles + inlined Leaflet for the preview (tiles fetched by the session's tiles.py into TILES_DIR)
+TILES_DIR = os.environ.get("TILES_DIR", "")
+pack = {"osm": {}, "esri": {}}
+if TILES_DIR and os.path.isdir(TILES_DIR):
+    for kind, ext, mime in (("osm", ".png", "image/png"), ("esri", ".jpg", "image/jpeg")):
+        d = os.path.join(TILES_DIR, kind)
+        if not os.path.isdir(d): continue
+        import math
+        for f in sorted(os.listdir(d)):
+            if not f.endswith(ext): continue
+            z, x, y = f[:-len(ext)].split("_")
+            zi, yi = int(z), int(y)
+            lat = math.degrees(math.atan(math.sinh(math.pi * (1 - 2 * (yi + 0.5) / 2 ** zi))))
+            if kind == "esri" and zi >= 15 and lat > 7.5: continue  # aerial stays at city zooms in Abuja; Cova keeps its close-ups
+            im = Image.open(os.path.join(d, f)).convert("RGB"); buf = io.BytesIO()
+            im.save(buf, "JPEG", quality=72 if kind == "osm" else 62, optimize=True)
+            pack[kind][f"{z}/{x}/{y}"] = "data:image/jpeg;base64," + base64.b64encode(buf.getvalue()).decode()
+    if not pack["esri"]: pack.pop("esri")
+leaflet_css = open(os.path.join(ROOT, "assets", "leaflet", "leaflet.css"), encoding="utf-8").read()
+leaflet_js = open(os.path.join(ROOT, "assets", "leaflet", "leaflet.js"), encoding="utf-8").read()
+mapblock = ("<style>" + leaflet_css + "</style>\n<script>" + leaflet_js + "</script>\n<script>window.__TILES=" + json.dumps(pack) + ";</script>\n") if pack["osm"] else ""
+print("tiles packed:", len(pack["osm"]), "osm", len(pack.get("esri", {})), "esri")
+resolver = mapblock + "<script>window.__A=" + json.dumps(A) + ";document.querySelectorAll('[data-a]').forEach(function(el){el.src=window.__A[el.dataset.a]||''});</script>\n"
 i = out.index("<script>")
 out = out[:i] + resolver + out[i:]
 open(os.path.join(ROOT, "tools", "artifact.html"), "w", encoding="utf-8").write(out)
