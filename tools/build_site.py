@@ -1,7 +1,8 @@
 # Generates index.html for the Garo Private Portfolio from data.py. Run: python3 tools/build_site.py
 import os, sys, html as H
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from data import SITES, CLIENT, CLIENT_SHORT, AGENT, DATE
+from data import SITES, CLIENT, CLIENT_SHORT, CLIENT_GREETING, AGENT, DATE
+import json
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 CSS = r"""
@@ -89,7 +90,7 @@ body.ready .tabs{opacity:1}
 .tabs button:hover .l,.tabs button.on .l{opacity:1;transform:none}
 .tabs button .k{font-family:var(--fd);font-size:11px;letter-spacing:.08em;opacity:.55;min-width:2ch;text-align:right;transition:opacity .3s}
 .tabs button i{width:14px;height:1px;background:currentColor;opacity:.5;transition:.35s;flex:none}
-.tabs button.on .k{opacity:1}.tabs button.on i{width:30px;opacity:1;background:#e6cb92}
+.tabs button.on .k{opacity:1}.tabs button.on i{width:30px;opacity:1}
 .tabs button.sec .k{font-size:9px;letter-spacing:.2em}
 @media (max-width:1000px){.tabs{display:none}}
 .progress{position:fixed;left:0;right:0;bottom:0;height:2px;z-index:115;background:transparent;pointer-events:none}
@@ -108,11 +109,11 @@ body.ready #welcome .meta{opacity:1}
 #welcome .meta .mono{font-family:var(--fd);letter-spacing:.2em}
 .w-eye{opacity:0;transform:translateY(10px);transition:opacity .9s ease 1.3s,transform .9s var(--ease-o) 1.3s}
 body.ready .w-eye{opacity:1;transform:none}
-.w-back{font-family:var(--fi);font-style:italic;font-weight:300;font-size:clamp(1.9rem,4.2vw,3.6rem);color:var(--brass-hi);line-height:1.1;margin-top:22px;display:flex;gap:.3em;overflow:hidden}
+.w-back{font-family:var(--fi);font-style:italic;font-weight:300;font-size:clamp(1.9rem,4.2vw,3.6rem);color:var(--brass-hi);line-height:1.15;margin-top:22px;display:flex;flex-wrap:wrap;gap:0 .3em;overflow:hidden}
 .w-back span{display:inline-block;transform:translateY(110%);opacity:0;transition:transform 1s var(--ease-o),opacity .6s ease}
 body.ready .w-back span{transform:none;opacity:1}
-body.ready .w-back span:nth-child(1){transition-delay:1.55s}body.ready .w-back span:nth-child(2){transition-delay:1.7s}
-.w-name{font-family:var(--fd);font-size:clamp(2.7rem,8.6vw,8.4rem);line-height:.98;letter-spacing:-.015em;margin-top:.1em;display:flex;flex-wrap:wrap;column-gap:.24em;color:var(--ivory)}
+body.ready .w-back span:nth-child(1){transition-delay:1.55s}body.ready .w-back span:nth-child(2){transition-delay:1.65s}body.ready .w-back span:nth-child(3){transition-delay:1.75s}body.ready .w-back span:nth-child(4){transition-delay:1.85s}
+.w-name{font-family:var(--fd);font-size:clamp(3.4rem,10vw,10rem);line-height:.98;letter-spacing:-.015em;margin-top:.1em;display:flex;flex-wrap:wrap;column-gap:.24em;color:var(--ivory)}
 .w-name .w{display:inline-flex;overflow:hidden;padding-bottom:.08em;margin-bottom:-.08em}
 .w-name .ch{display:inline-block;transform:translateY(112%) rotate(3deg);opacity:0;filter:blur(6px);transition:transform 1.1s var(--ease-o),opacity .7s ease,filter .9s ease;transition-delay:calc(1.9s + var(--i)*.045s)}
 body.ready .w-name .ch{transform:none;opacity:1;filter:none}
@@ -178,31 +179,56 @@ body.ready .ticker{opacity:1}
 .stats .k{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--mute);margin-top:12px}
 @media (max-width:1000px){.stats{grid-template-columns:repeat(3,minmax(0,1fr))}.stats>div:nth-child(3n){border-right:0}.stats>div:nth-child(3n+1){padding-left:0}.stats>div{border-bottom:1px solid var(--rule-2)}}
 @media (max-width:560px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.stats>div:nth-child(3n){border-right:1px solid var(--rule-2)}.stats>div:nth-child(2n){border-right:0}.stats>div:nth-child(odd){padding-left:0}.stats>div:nth-child(even){padding-left:18px}}
-.map-g{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:clamp(32px,5vw,80px);align-items:center;margin-top:clamp(56px,8vh,96px)}
-.map{position:relative;border:1px solid var(--rule);background:var(--panel);aspect-ratio:100/76;overflow:hidden}
-.map svg{width:100%;height:100%;display:block;font-family:var(--fs)}
-.map .grid{stroke:rgba(239,231,216,.06)}
-.map .ref{fill:rgba(239,231,216,.36);font-size:2.1px;letter-spacing:.3px;text-transform:uppercase}
-.map .ref-m{stroke:rgba(239,231,216,.3);fill:none}
-.map .pin{cursor:pointer}
-.map .pin circle.c{fill:var(--brass);transition:.3s}
-.map .pin circle.h{fill:none;stroke:var(--brass);stroke-width:.25;opacity:.55;transform-origin:center;transform-box:fill-box;animation:halo 3.2s ease-out infinite}
-.map .pin text.k{fill:var(--onyx);font-size:2.3px;font-family:var(--fd);text-anchor:middle;pointer-events:none}
-.map .pin text.l{fill:var(--ivory);font-size:2.4px;letter-spacing:.2px;pointer-events:none;opacity:.85;transition:.3s}
-.map .pin:hover circle.c{fill:var(--brass-hi)}.map .pin:hover text.l{opacity:1;fill:var(--brass-hi)}
-.map .zone{fill:var(--ivory);opacity:.035}
-.map .zl{fill:rgba(239,231,216,.5);font-size:2.6px;letter-spacing:.9px;text-transform:uppercase;font-family:var(--fd)}
-.map .inset{fill:none;stroke:rgba(239,231,216,.22);stroke-dasharray:.8 .8}
-.map .note{position:absolute;left:14px;bottom:12px;font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--mute)}
-@keyframes halo{0%{transform:scale(1);opacity:.6}100%{transform:scale(3.4);opacity:0}}
-.map-side .t-3{margin-top:18px}
-.map-side p{margin-top:16px;color:var(--mute);font-size:15px;line-height:1.65;max-width:44ch}
-.map-side .districts{margin-top:26px;display:grid;gap:0;border-top:1px solid var(--rule)}
-.map-side .districts button{display:grid;grid-template-columns:3ch 1fr auto;gap:16px;align-items:baseline;text-align:left;padding:12px 0;border-bottom:1px solid var(--rule-2);transition:color .3s}
-.map-side .districts button:hover{color:var(--acc-hi)}
-.map-side .districts .k{font-family:var(--fd);font-size:13px;color:var(--acc)}
-.map-side .districts .d{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mute)}
-@media (max-width:900px){.map-g{grid-template-columns:1fr}}
+.map-h{display:flex;justify-content:space-between;align-items:end;gap:20px;flex-wrap:wrap;margin-top:clamp(56px,8vh,96px)}
+.map-h .t-3{margin-top:16px}
+.map-ctl{display:flex;gap:10px;flex-wrap:wrap}
+.seg{display:inline-flex;border:1px solid var(--rule);border-radius:999px;padding:3px}
+.seg button{font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;font-weight:500;padding:8px 14px;border-radius:999px;color:var(--mute);transition:.3s;white-space:nowrap}
+.seg button:hover{color:var(--fg)}
+.seg button[aria-pressed="true"]{background:var(--fg);color:var(--bg)}
+.map-g{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(280px,1fr);gap:clamp(20px,3vw,44px);align-items:stretch;margin-top:26px}
+.lmap-wrap{position:relative;height:clamp(460px,64vh,720px);border:1px solid var(--rule);background:var(--panel);overflow:hidden;isolation:isolate}
+#lmap{width:100%;height:100%;background:var(--panel);opacity:0;transition:opacity 1.2s ease}
+.lmap-wrap.ready #lmap{opacity:1}
+.lmap-wrap.night:not(.aerial) .leaflet-tile-pane{filter:invert(1) hue-rotate(180deg) grayscale(.92) brightness(.78) contrast(1.08)}
+.lmap-wrap .leaflet-container{font-family:var(--fs);font-size:12px}
+.lmap-wrap .leaflet-container a{color:inherit}
+.lmap-wrap .leaflet-control-zoom{border:1px solid var(--rule);border-radius:0;overflow:hidden;margin:14px;box-shadow:none}
+.lmap-wrap .leaflet-bar a{background:var(--umber);color:var(--ivory);border-bottom:1px solid var(--rule);width:34px;height:34px;line-height:32px;font-family:var(--fd);font-size:20px}
+.lmap-wrap .leaflet-bar a:last-child{border-bottom:0}
+.lmap-wrap .leaflet-bar a:hover{background:var(--smoke);color:var(--brass-hi)}
+.lmap-wrap .leaflet-bar a.leaflet-disabled{color:var(--ash-2)}
+.lmap-wrap .leaflet-control-attribution{background:rgba(11,10,8,.7);color:var(--ash);font:400 9.5px/1.4 var(--fs);letter-spacing:.02em;padding:3px 8px}
+.lmap-wrap .leaflet-control-scale{margin:0 0 12px 14px}
+.lmap-wrap .leaflet-control-scale-line{border:1px solid rgba(239,231,216,.5);border-top:0;background:rgba(11,10,8,.6);color:var(--ivory);font:500 9.5px/1.7 var(--fs);letter-spacing:.1em;padding:1px 6px}
+.lmap-wrap .lm-pin{width:0!important;height:0!important;margin:0!important;border:0;background:none}
+.lmap-wrap .lm-pin i{position:absolute;left:-13px;top:-13px;width:26px;height:26px;border-radius:50%;background:var(--brass);color:var(--onyx);border:1.5px solid var(--onyx);box-shadow:0 0 0 4px rgba(184,147,90,.22),0 2px 10px rgba(0,0,0,.5);font:400 11px/23px var(--fd);letter-spacing:.06em;text-align:center;font-style:normal;transition:.3s}
+.lmap-wrap .lm-pin b{position:absolute;left:18px;top:-9px;white-space:nowrap;font:500 10px/18px var(--fs);letter-spacing:.16em;text-transform:uppercase;color:var(--ivory);text-shadow:0 0 4px #0b0a08,0 0 8px #0b0a08,0 1px 2px #0b0a08}
+.lmap-wrap.aerial .lm-pin b{text-shadow:0 0 4px #000,0 0 8px #000}
+.lmap-wrap.far .lm-pin:not(.on):not(:hover) b{opacity:0}
+.lmap-wrap .lm-pin b{transition:opacity .3s}
+.lmap-wrap .lm-pin.on i,.lmap-wrap .lm-pin:hover i{background:var(--brass-hi);transform:scale(1.15)}
+.lmap-wrap .lm-pin.ap i{background:var(--umber);color:var(--brass-hi);border-color:var(--brass)}
+.lmap-wrap .leaflet-popup-content-wrapper{background:var(--umber);color:var(--ivory);border-radius:0;border:1px solid var(--rule);box-shadow:0 14px 40px rgba(0,0,0,.5);padding:0}
+.lmap-wrap .leaflet-popup-content{margin:16px 18px 15px;font:400 13px/1.5 var(--fs);min-width:220px}
+.lmap-wrap .leaflet-popup-tip{background:var(--umber);box-shadow:none}
+.lmap-wrap .leaflet-container a.leaflet-popup-close-button{color:var(--ash);font:300 20px/22px var(--fs);padding:6px 8px 0 0;width:auto;height:auto}
+.lm-pop .k{font-family:var(--fd);color:var(--brass);letter-spacing:.2em;font-size:11px}
+.lm-pop .n{font-family:var(--fd);font-size:18px;margin:4px 0 2px}
+.lm-pop .a{color:var(--ash);font-size:12px}
+.lm-pop .p{font-family:var(--fd);font-size:15px;margin-top:8px}
+.lm-pop .x{display:flex;gap:14px;margin-top:12px;font-size:10px;letter-spacing:.18em;text-transform:uppercase;font-weight:500;color:var(--brass-hi)}
+.map-fb{position:absolute;inset:0;padding:clamp(20px,3vw,36px);overflow:auto;background:var(--panel)}
+.map-fb p{margin:14px 0 18px;color:var(--mute);max-width:52ch;font-size:14px;line-height:1.6}
+.map-fb .fbrows{border-top:1px solid var(--rule)}
+.map-fb .fbrows a,.map-side .districts button{display:grid;grid-template-columns:3ch 1fr auto;gap:16px;align-items:baseline;text-align:left;padding:12px 0;border-bottom:1px solid var(--rule-2);transition:color .3s;width:100%}
+.map-fb .fbrows a:hover,.map-side .districts button:hover,.map-side .districts button.on{color:var(--acc-hi)}
+.map-fb .fbrows .k,.map-side .districts .k{font-family:var(--fd);font-size:13px;color:var(--acc)}
+.map-fb .fbrows small,.map-side .districts small{display:block;font-size:11px;color:var(--mute);margin-top:2px;letter-spacing:.02em}
+.map-fb .fbrows .d,.map-side .districts .d{font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--mute);white-space:nowrap}
+.map-side p{color:var(--mute);font-size:14.5px;line-height:1.65}
+.map-side .districts{margin-top:18px;border-top:1px solid var(--rule)}
+@media (max-width:900px){.map-g{grid-template-columns:1fr}.lmap-wrap{height:min(70vh,520px)}}
 
 /* ledger */
 .ledger-h{display:flex;justify-content:space-between;align-items:end;gap:20px;margin-top:clamp(64px,9vh,110px);flex-wrap:wrap}
@@ -267,6 +293,9 @@ body.ready .ticker{opacity:1}
 .dz .head .sc{font-family:var(--fi);font-style:italic;font-size:clamp(1.3rem,2vw,1.8rem);color:var(--mute);margin-top:12px}
 .dz .head .addr{font-size:13px;letter-spacing:.06em;color:var(--mute);margin-top:18px;display:flex;flex-wrap:wrap;gap:6px 18px}
 .dz .head .addr b{font-weight:500;color:var(--fg)}
+.dz .head .addr .gm{display:inline-flex;align-items:center;gap:8px;color:var(--acc);letter-spacing:.14em;text-transform:uppercase;font-size:10.5px;font-weight:500;border-bottom:1px solid transparent;transition:.3s}
+.dz .head .addr .gm:hover{border-color:var(--acc)}
+.dz .head .addr .gm svg{width:12px;height:12px}
 .dz .head .pr{text-align:right}
 .dz .head .pr .v{font-family:var(--fd);font-size:clamp(1.8rem,3.4vw,3rem);line-height:1;white-space:nowrap}
 .dz .head .pr .k{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--mute);margin-top:10px}
@@ -503,8 +532,8 @@ def welcome():
   <div class="meta"><span>Mizan Qist Limited · Private client</span><span class="mono">Confidential · {esc(DATE)}</span></div>
   <div class="stage">
     <div class="eyebrow w-eye">Private portfolio · Abuja · Ten addresses</div>
-    <div class="w-back" aria-hidden="true"><span>Welcome</span><span>back,</span></div>
-    <h1 class="w-name" id="wname"><span class="sr">Welcome back, {esc(CLIENT_SHORT)}</span>{name_markup(CLIENT_SHORT)}</h1>
+    <div class="w-back" aria-hidden="true">{"".join(f"<span>{esc(w)}</span>" for w in CLIENT_GREETING.split(" "))}</div>
+    <h1 class="w-name" id="wname"><span class="sr">{esc(CLIENT_GREETING)} {esc(CLIENT_SHORT)}</span>{name_markup(CLIENT_SHORT)}</h1>
     <div class="w-line"></div>
     <p class="w-sub">Your portfolio is ready: ten addresses, sourced and prepared for you by Mizan Qist. Nine in Abuja, one in Lagos, each with its prices, the state of the site, and our view.</p>
     <div class="w-cta"><a class="btn-ring" href="#brief">Open the portfolio {ARROW}</a><div class="w-scroll"><i></i>Scroll</div></div>
@@ -532,20 +561,12 @@ def brief():
  </div></div>
 </section>'''
 
-PINS = {  # schematic positions on a 100 x 76 field, approximate relative geography of Abuja Phase 1
- "d01": (47, 21), "d02": (55, 15.5), "d03": (59, 26), "d08": (49, 31),
- "d04": (40, 44), "d05": (23, 13), "d06": (23, 42), "d07": (64, 66.5), "d09": (77, 50), "d10": (89, 67),
-}
-PIN_ANCHOR = {"d01": "start", "d02": "start", "d03": "start", "d08": "end", "d04": "start", "d05": "start", "d06": "start", "d07": "end", "d09": "start", "d10": "middle"}
+def map_data():
+    return [dict(id=x["id"], n=x["n"], name=x["name"], addr=x["addr"], price=x["price"], status=x["status"], ll=list(x["ll"]) if x["ll"] else None, gmaps=x["gmaps"], approx=x["approx"], city=x["city"]) for x in SITES]
 
 def glance():
-    by = {s["id"]: s for s in SITES}
-    pins = ""
-    for sid, (x, y) in PINS.items():
-        s = by[sid]; a = PIN_ANCHOR[sid]
-        lx = x + (4.2 if a == "start" else -4.2 if a == "end" else 0); ly = y + (0.9 if a != "middle" else 5.6)
-        pins += f'<g class="pin" data-go="{sid}" tabindex="0" role="button" aria-label="Go to dossier {s["n"]}, {esc(s["name"])}"><circle class="h" cx="{x}" cy="{y}" r="2.6"/><circle class="c" cx="{x}" cy="{y}" r="2.6"/><text class="k" x="{x}" y="{y+0.85}">{s["n"]}</text><text class="l" x="{lx}" y="{ly}" text-anchor="{a}">{esc(s["name"])}</text></g>'
-    rows = "".join(f'<button type="button" data-go="{s["id"]}"><span class="k">{s["n"]}</span><span>{esc(s["name"])}{(" · " + esc(s["scheme"])) if s["scheme"] else ""}</span><span class="d">{esc(s["district"])}{", Lagos" if s["city"]=="Lagos" else ""}</span></button>' for s in SITES)
+    rows = "".join(f'<button type="button" class="mrow" data-m="{s["id"]}"><span class="k">{s["n"]}</span><span>{esc(s["name"])}<small>{esc(s["addr"])}</small></span><span class="d">{esc(s["district"])}{", Lagos" if s["city"]=="Lagos" else ""}</span></button>' for s in SITES)
+    fallback = "".join(f'<a href="{esc(s["gmaps"])}" target="_blank" rel="noopener"><span class="k">{s["n"]}</span><span>{esc(s["name"])}<small>{esc(s["addr"])}</small></span><span class="d">Google Maps</span></a>' for s in SITES)
     return f'''
 <section class="pg" id="glance" aria-label="At a glance">
  <div class="wrap">
@@ -557,35 +578,14 @@ def glance():
     <div><div class="v rng">₦350m<small>to</small> ₦6.6bn</div><div class="k">Price range</div></div>
     <div><div class="v num"><span data-count="2">2</span><small>·</small><span data-count="3">3</span><small>·</small><span data-count="5">5</span></div><div class="k">Ready · selling · off-plan</div></div>
   </div>
+  <div class="map-h rv"><div><div class="eyebrow">The map</div><h3 class="t-3">Where each address sits.</h3></div>
+   <div class="map-ctl"><div class="seg" role="group" aria-label="Map layer"><button type="button" data-layer="streets" aria-pressed="true">Streets</button><button type="button" data-layer="aerial" aria-pressed="false">Aerial</button></div><div class="seg" role="group" aria-label="City"><button type="button" data-city="Abuja" aria-pressed="true">Abuja</button><button type="button" data-city="Lagos" aria-pressed="false">Lagos</button></div></div></div>
   <div class="map-g">
-   <div class="map rv" id="map">
-    <svg viewBox="0 0 100 76" role="img" aria-label="Schematic map of the ten addresses">
-     <defs><pattern id="mg" width="4" height="4" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r=".22" fill="rgba(239,231,216,.16)"/></pattern></defs>
-     <rect width="100" height="76" fill="url(#mg)"/>
-     <path class="zone" d="M36 8 C48 4 64 6 68 14 C72 24 66 36 54 38 C42 40 34 30 34 20 Z"/>
-     <text class="zl" x="44" y="10.5">Maitama</text>
-     <path class="zone" d="M28 36 C36 34 48 38 50 46 C52 54 40 58 32 54 C24 50 22 40 28 36 Z"/>
-     <text class="zl" x="34" y="52.5">Wuse II</text>
-     <path class="zone" d="M14 8 C22 4 32 6 34 12 C36 18 30 24 22 24 C14 24 10 14 14 8 Z"/>
-     <text class="zl" x="11" y="28">Katampe Ext.</text>
-     <path class="zone" d="M12 34 C20 32 30 36 30 44 C30 50 22 54 16 50 C10 46 8 38 12 34 Z"/>
-     <text class="zl" x="9" y="57.5">Mabushi · Utako</text>
-     <path class="zone" d="M66 42 C74 40 84 44 84 52 C84 58 76 60 70 56 C64 52 62 44 66 42 Z"/>
-     <text class="zl" x="68" y="59.5">Asokoro</text>
-     <path class="zone" d="M60 58 C68 56 78 60 78 66 C78 72 70 74 64 70 C58 66 56 60 60 58 Z"/>
-     <text class="zl" x="60" y="73">Guzape</text>
-     <g class="ref-m"><path d="M54 48 l1.2 1.2 M55.2 48 l-1.2 1.2" stroke-width=".3"/><circle cx="72" cy="36" r="1.1" stroke-width=".3"/><path d="M6 56 c2-3 6-3 8 0 c2 3 -2 6 -4 5 c-3-1-5-3-4-5z" stroke-width=".25"/></g>
-     <text class="ref" x="57" y="49.6">Central Area</text><text class="ref" x="74.6" y="37">Aso Rock</text><text class="ref" x="4" y="63.5">Jabi Lake</text>
-     <rect class="inset" x="80" y="60" width="18" height="14"/><text class="ref" x="81.4" y="63">Lagos · Victoria Island</text>
-     {pins}
-    </svg>
-    <div class="note">Schematic · relative positions · not to scale</div>
-   </div>
+   <div class="lmap-wrap night rv" id="lmapwrap"><div id="lmap" aria-label="Interactive map of the ten addresses"></div>
+    <div class="map-fb" id="mapfb" hidden><div class="eyebrow plain">Map</div><p>The interactive map runs on the published site. Each address opens in Google Maps:</p><div class="fbrows">{fallback}</div></div></div>
    <div class="map-side rv">
-    <div class="eyebrow">The districts</div>
-    <h3 class="t-3">Maitama holds four of the ten; the rest ring the centre.</h3>
-    <p>Four addresses sit in the diplomatic quarter, on Lake Chad Crescent, Gana Street, Agulu Lake Street and Mississippi Street. Wuse II, Katampe Extension, Mabushi District, Guzape and Asokoro take one each. Cova Manor stands apart in Victoria Island, Lagos. Choose a pin, or a row, to open its dossier.</p>
-    <div class="districts">{rows}</div>
+    <p>Four addresses sit in Maitama: Lake Chad Crescent, Agulu Lake Street, Gana Street and Mississippi Street. Wuse II, Katampe Extension, Mabushi District, Guzape and Asokoro take one each, and Cova Manor stands apart in Victoria Island, Lagos. Choose a row to fly to it; each dossier also opens in Google Maps.</p>
+    <div class="districts" id="mrows">{rows}</div>
    </div>
   </div>
   {ledger()}
@@ -600,7 +600,7 @@ def ledger():
         price_sort = s["pmin"] if s["pmin"] else 99999
         availcell = "" if s["avail"]=="—" else '<span class="small"> · ' + esc(s["avail"]) + ' avail.</span>'
         rows += f'''<tr data-go="{s["id"]}" data-n="{s["n"]}" data-price="{price_sort}" data-status="{STATUS_ORDER[s["status"]]}">
-<td class="k">{s["n"]}</td><td class="nm">{esc(s["name"])}<small>{esc(s["street"])}{(" · " + esc(s["district"])) if s["district"] not in s["street"] else ""}{", Lagos" if s["city"]=="Lagos" else ""}</small></td>
+<td class="k">{s["n"]}</td><td class="nm">{esc(s["name"])}<small>{esc(s["addr"])}</small></td>
 <td>{esc(types)}</td><td class="num">{esc(s["beds"])}</td><td class="num">{esc(s["units"])}{availcell}</td><td class="pr">{esc(s["price"])}</td><td>{chip(s["status"])}</td><td class="vw">{esc(s["short"])}</td><td class="star-c st">{star(s)}</td></tr>'''
     return f'''
   <div class="ledger-h rv"><div><div class="eyebrow">The ledger</div><h2 class="t-2">Every address on one page.</h2></div>
@@ -673,7 +673,7 @@ def dossier(s, shade, flip):
     availtxt = "Availability on request" if s["avail"]=="—" else "<b>" + esc(s["avail"]) + "</b> available"
     head = f'''<div class="head rv-stag">
     <div><div class="eyebrow">{esc(s["street"])}{(" · " + esc(s["plot"])) if s["plot"] else ""}</div><h2 class="nm">{esc(s["name"])}</h2>{f'<p class="sc">{esc(s["scheme"])}</p>' if s["scheme"] else ""}
-      <div class="addr"><span><b>{esc(s["district"])}</b> · {esc(s["city"])}</span><span><b>{esc(s["units"])}</b> {"home" if s["units"]=="1" else "homes"} in the scheme</span><span>{availtxt}</span></div></div>
+      <div class="addr"><span><b>{esc(s["addr"])}</b></span><span><b>{esc(s["units"])}</b> {"home" if s["units"]=="1" else "homes"} in the scheme</span><span>{availtxt}</span><a class="gm" href="{esc(s["gmaps"])}" target="_blank" rel="noopener">Open in Google Maps{" · nearest pin" if s["approx"]=="nearest" else " · street" if s["approx"]=="street" else " · district, approximate" if s["approx"]=="district" else ""} {ARROW}</a></div></div>
     <div class="pr"><div class="v">{esc(s["price"])}</div><div class="k">{"Price band" if "–" in s["price"] else "Price"} · {esc(s["beds"])} bedrooms</div></div></div>'''
     left = facts_html(s) + types_html(s)
     view = f'<div class="view"><div class="eyebrow">Our view</div><p>{esc(s["view"])}</p></div>'
@@ -748,11 +748,11 @@ def chrome():
   <div class="ttl">The <em>Garo</em> Portfolio</div>
   <div class="acts"><button type="button" class="btn sl" data-go="desk" aria-label="Your shortlist"><span class="n" id="slcount"></span>Shortlist</button><button type="button" class="btn" id="idxbtn" aria-haspopup="dialog" aria-controls="index">Index</button></div>
 </header>
-<nav class="tabs" aria-label="Dossiers"><button type="button" class="sec" data-go="brief"><span class="l">Your brief</span><span class="k">Brief</span><i></i></button><button type="button" class="sec" data-go="glance"><span class="l">At a glance</span><span class="k">Map</span><i></i></button>{tabs}<button type="button" class="sec" data-go="desk"><span class="l">Your desk</span><span class="k">Desk</span><i></i></button></nav>
+<nav class="tabs" aria-label="Dossiers"><button type="button" class="sec" data-go="brief"><span class="l">Your brief</span><span class="k">Brief</span><i></i></button><button type="button" class="sec" data-go="collection"><span class="l">The collection</span><span class="k">All</span><i></i></button><button type="button" class="sec" data-go="glance"><span class="l">Map &amp; ledger</span><span class="k">Map</span><i></i></button>{tabs}<button type="button" class="sec" data-go="desk"><span class="l">Your desk</span><span class="k">Desk</span><i></i></button></nav>
 <div class="progress" aria-hidden="true"><i id="pbar"></i></div>
 <div id="index" role="dialog" aria-modal="true" aria-label="Index"><div class="in">
   <div class="ih"><div><div class="eyebrow">Index</div><h2 class="t-2">The ten dossiers.</h2></div><button type="button" class="close" id="idxclose" aria-label="Close the index">{CLOSE}</button></div>
-  <div class="secs"><a href="#welcome" data-go="welcome">Welcome</a><a href="#brief" data-go="brief">Your brief</a><a href="#glance" data-go="glance">Map &amp; ledger</a><a href="#collection" data-go="collection">The collection</a><a href="#desk" data-go="desk">Your desk</a></div>
+  <div class="secs"><a href="#welcome" data-go="welcome">Welcome</a><a href="#brief" data-go="brief">Your brief</a><a href="#collection" data-go="collection">The collection</a><a href="#glance" data-go="glance">Map &amp; ledger</a><a href="#desk" data-go="desk">Your desk</a></div>
   <div class="rows">{rows}</div>
 </div></div>
 <div id="lb" role="dialog" aria-modal="true" aria-label="Plate viewer"><div class="bar"><span><b id="lbsite"></b> · <span id="lbgroup"></span></span><div class="x"><button type="button" id="lbzoom" aria-label="Zoom">{ZOOM}</button><button type="button" id="lbclose" aria-label="Close">{CLOSE}</button></div></div>
@@ -959,6 +959,63 @@ lbst.addEventListener('pointerup',e=>{ if(!pdown) return; pdown=false; const dx=
 lbst.addEventListener('dblclick',e=>{ if(z.s>1) resetZoom(); else { const r=lbst.getBoundingClientRect(); z.s=2.2; z.x=(r.width/2-(e.clientX-r.left))*(z.s-1); z.y=(r.height/2-(e.clientY-r.top))*(z.s-1); applyZoom(); } });
 lbst.addEventListener('wheel',e=>{ if(!lbOpen) return; e.preventDefault(); const s=Math.max(1,Math.min(4,z.s*(e.deltaY<0?1.12:0.89))); if(s===1){ resetZoom(); return; } z.s=s; applyZoom(); },{passive:false});
 
+
+/* ---------- map (Leaflet, loaded when near) ---------- */
+(function(){
+  const wrap=$('#lmapwrap'); if(!wrap) return;
+  const fb=$('#mapfb'), rowsEl=$('#mrows'), rows={}, markers={}; let map=null, booted=false, streets=null, aerial=null, layer='streets';
+  $$('.mrow',rowsEl).forEach(r=>rows[r.dataset.m]=r);
+  function fail(){ fb.hidden=false; wrap.classList.add('failed'); }
+  if(window.__NOMAP){ fail(); return; }
+  function loadScript(src,cb){ const el=document.createElement('script'); el.src=src; el.async=true; el.onload=cb; el.onerror=fail; document.head.appendChild(el); }
+  function boot(){
+    if(booted) return; booted=true;
+    let pending=2; const done=()=>{ if(--pending===0){ if(window.L){ try{ init(); }catch(e){ fail(); if(window.console) console.error(e); } } else fail(); } };
+    const css=document.createElement('link'); css.rel='stylesheet'; css.href='assets/leaflet/leaflet.css'; css.onload=done; css.onerror=fail; document.head.appendChild(css);
+    loadScript('assets/leaflet/leaflet.js',done);
+  }
+  const lio=new IntersectionObserver(es=>{ if(es.some(e=>e.isIntersecting)){ boot(); lio.disconnect(); } },{rootMargin:'900px 0px'}); lio.observe(wrap);
+  const coarse=matchMedia('(pointer:coarse)').matches;
+  const D=window.GARO_MAP||[];
+  function init(){
+    map=L.map('lmap',{zoomControl:false,scrollWheelZoom:false,dragging:!coarse,zoomSnap:.5,minZoom:5,maxZoom:19,attributionControl:true});
+    map.attributionControl.setPrefix('<a href="https://leafletjs.com" target="_blank" rel="noopener">Leaflet</a>');
+    L.control.zoom({position:'topleft'}).addTo(map); L.control.scale({imperial:false,position:'bottomleft',maxWidth:130}).addTo(map);
+    streets=L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxNativeZoom:19,maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors'});
+    aerial=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxNativeZoom:19,maxZoom:19,attribution:'Imagery &copy; Esri, Maxar, Earthstar Geographics'});
+    streets.addTo(map);
+    let tilesOk=false; streets.on('tileload',()=>{ tilesOk=true; wrap.classList.add('ready'); }); streets.on('tileerror',()=>{ if(!tilesOk) fail(); });
+    setTimeout(()=>{ if(!tilesOk) fail(); },9000);
+    D.forEach(x=>{
+      if(!x.ll) return;
+      const ap=x.approx?' ap':'';
+      const m=L.marker(x.ll,{icon:L.divIcon({className:'lm-pin'+ap,html:'<i>'+x.n+'</i><b>'+x.name+'</b>',iconSize:[0,0]}),alt:x.name,riseOnHover:true}).addTo(map);
+      const note=x.approx==='nearest'?'Nearest pin available':x.approx==='street'?'Street-level pin':x.approx==='district'?'District only · exact pin to follow':'';
+      m.bindPopup('<div class="lm-pop"><div class="k">'+x.n+' · '+x.status+'</div><div class="n">'+x.name+'</div><div class="a">'+x.addr+(note?' · '+note:'')+'</div><div class="p">'+x.price+'</div><div class="x"><a href="#'+x.id+'" data-go="'+x.id+'">Dossier</a><a href="'+x.gmaps+'" target="_blank" rel="noopener">Google Maps</a></div></div>',{maxWidth:300,closeButton:true,offset:[0,-6]});
+      m.on('click',()=>select(x.id,false)); markers[x.id]=m;
+    });
+    map.on('zoomend',()=>wrap.classList.toggle('far',map.getZoom()<13.5)); wrap.classList.add('far');
+    fitCity('Abuja',true);
+  }
+  function fitCity(city,instant){
+    const pts=D.filter(x=>x.ll&&x.city===city).map(x=>x.ll); if(!pts.length) return;
+    $$('[data-city]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.city===city?'true':'false'));
+    if(pts.length===1){ instant?map.setView(pts[0],16):map.flyTo(pts[0],16,{duration:1.8}); return; }
+    const b=L.latLngBounds(pts); instant?map.fitBounds(b,{padding:[48,48]}):map.flyToBounds(b,{padding:[48,48],duration:1.6});
+  }
+  function select(id,fly){
+    for(const k in rows){ rows[k].classList.toggle('on',k===id); const e=markers[k]&&markers[k].getElement(); if(e) e.classList.toggle('on',k===id); }
+    const x=D.find(z=>z.id===id); if(!x||!map) return;
+    if(!x.ll){ return; }
+    $$('[data-city]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.city===x.city?'true':'false'));
+    const after=()=>markers[id].openPopup();
+    if(fly&&!rm){ map.flyTo(x.ll,x.approx==='district'?14:16,{duration:1.4}); map.once('moveend',after); } else { map.setView(x.ll,x.approx==='district'?14:16); after(); }
+  }
+  rowsEl.addEventListener('click',e=>{ const r=e.target.closest('.mrow'); if(!r) return; if(!map){ go(r.dataset.m); return; } select(r.dataset.m,true); });
+  $$('[data-layer]').forEach(b=>b.addEventListener('click',()=>{ if(!map) return; layer=b.dataset.layer; $$('[data-layer]').forEach(x=>x.setAttribute('aria-pressed',x===b?'true':'false')); wrap.classList.toggle('aerial',layer==='aerial'); if(layer==='aerial'){ map.removeLayer(streets); aerial.addTo(map); } else { map.removeLayer(aerial); streets.addTo(map); } }));
+  $$('[data-city]').forEach(b=>b.addEventListener('click',()=>{ if(!map) return; fitCity(b.dataset.city,false); for(const k in rows) rows[k].classList.remove('on'); }));
+})();
+
 /* ---------- cursor ---------- */
 const cur=$('#cur'), cur2=$('#cur2');
 if(matchMedia('(pointer:fine)').matches && innerWidth>=900 && !rm){
@@ -971,7 +1028,7 @@ if(matchMedia('(pointer:fine)').matches && innerWidth>=900 && !rm){
 """
 
 def build():
-    parts = [chrome(), welcome(), brief(), glance(), shelf()]
+    parts = [chrome(), welcome(), brief(), shelf(), glance()]
     shade = "dark"; flip = False
     for s in SITES:
         parts.append(dossier(s, shade, flip))
@@ -997,6 +1054,7 @@ def build():
 <body>
 '''
     tail = f'''
+<script>window.GARO_MAP={json.dumps(map_data(), ensure_ascii=False)};</script>
 <script>{JS}</script>
 </body>
 </html>
@@ -1004,7 +1062,7 @@ def build():
     page = head + content + tail
     with open(os.path.join(ROOT, "index.html"), "w", encoding="utf-8") as f: f.write(page)
     # artifact variant: no document wrapper; title + style at the top
-    art = f'<title>The Garo Portfolio</title>\n<style>{CSS}</style>\n<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gilda+Display&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,300;1,400&family=Instrument+Sans:wght@400;500;600&display=swap">\n' + content + f'\n<script>{JS}</script>\n'
+    art = f'<title>The Garo Portfolio</title>\n<style>{CSS}</style>\n<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gilda+Display&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,300;1,400&family=Instrument+Sans:wght@400;500;600&display=swap">\n' + content + f'\n<script>window.GARO_MAP={json.dumps(map_data(), ensure_ascii=False)};window.__NOMAP=1;</script>\n<script>{JS}</script>\n'
     with open(os.path.join(ROOT, "tools", "artifact-src.html"), "w", encoding="utf-8") as f: f.write(art)
     print("index.html", len(page)//1024, "KB")
 
