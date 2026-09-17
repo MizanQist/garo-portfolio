@@ -10,11 +10,11 @@ for n in names:
     if n.endswith(".png"):
         im.thumbnail((1400, 1400)); buf = io.BytesIO(); im.save(buf, "PNG", optimize=True); mime = "image/png"
     else:
-        mx = 1600 if n == "lc-dusk.jpg" else 1100
-        im = im.convert("RGB"); im.thumbnail((mx, mx)); buf = io.BytesIO(); im.save(buf, "JPEG", quality=68 if n == "lc-dusk.jpg" else 56, optimize=True, progressive=True); mime = "image/jpeg"
+        mx = 1600 if n == "cova-corner.jpg" else 1100
+        im = im.convert("RGB"); im.thumbnail((mx, mx)); buf = io.BytesIO(); im.save(buf, "JPEG", quality=68 if n == "cova-corner.jpg" else 56, optimize=True, progressive=True); mime = "image/jpeg"
     A[n] = f"data:{mime};base64," + base64.b64encode(buf.getvalue()).decode()
-out = re.sub(r'src="assets/([\w\-.]+)"', r'data-a="\1"', src)
-out = re.sub(r'data-src="assets/([\w\-.]+)"', r'data-src="\1"', out)
+out = re.sub(r'data-src="assets/([\w\-.]+)"', r'data-src="\1"', src)   # lightbox sources, resolved at open time
+out = re.sub(r'(?<![\w-])src="assets/([\w\-.]+)"', r'data-a="\1"', out)  # <img src> only, never data-src
 # packed map tiles + inlined Leaflet for the preview (tiles fetched by the session's tiles.py into TILES_DIR)
 TILES_DIR = os.environ.get("TILES_DIR", "")
 pack = {"osm": {}, "esri": {}}

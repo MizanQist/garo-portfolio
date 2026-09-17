@@ -99,7 +99,7 @@ body.ready .tabs{opacity:1}
 /* welcome */
 #welcome{position:relative;min-height:100svh;display:grid;grid-template-rows:1fr auto;overflow:hidden;background:var(--onyx);color:var(--ivory)}
 #welcome .bg{position:absolute;inset:0;overflow:hidden}
-#welcome .bg img{width:100%;height:100%;object-fit:cover;object-position:60% 60%;transform:scale(1.14);opacity:0;transition:opacity 1.6s ease .2s}
+#welcome .bg img{width:100%;height:100%;object-fit:cover;object-position:50% 42%;transform:scale(1.14);opacity:0;transition:opacity 1.6s ease .2s}
 body.ready #welcome .bg img{opacity:1;animation:kb 16s var(--ease-o) .1s forwards}
 @keyframes kb{from{transform:scale(1.14)}to{transform:scale(1.02)}}
 #welcome .bg::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,10,8,.35) 0%,rgba(11,10,8,.15) 35%,rgba(11,10,8,.72) 72%,rgba(11,10,8,.96) 100%),linear-gradient(90deg,rgba(11,10,8,.55) 0%,rgba(11,10,8,0) 60%)}
@@ -169,7 +169,7 @@ body.ready .ticker{opacity:1}
 @media (max-width:900px){.brief-g{grid-template-columns:1fr}.brief-g .lhs{position:static}.terms{grid-template-columns:1fr}}
 
 /* glance */
-.stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
 .stats>div{padding:28px 22px 26px 0;border-right:1px solid var(--rule-2)}
 .stats>div:last-child{border-right:0}
 .stats>div+div{padding-left:22px}
@@ -177,8 +177,7 @@ body.ready .ticker{opacity:1}
 .stats .v.rng{font-size:clamp(1.5rem,2.3vw,2.3rem);line-height:1.15}
 .stats .v small{font-size:.5em;letter-spacing:0;color:var(--mute);margin-left:.15em}
 .stats .k{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--mute);margin-top:12px}
-@media (max-width:1000px){.stats{grid-template-columns:repeat(3,minmax(0,1fr))}.stats>div:nth-child(3n){border-right:0}.stats>div:nth-child(3n+1){padding-left:0}.stats>div{border-bottom:1px solid var(--rule-2)}}
-@media (max-width:560px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.stats>div:nth-child(3n){border-right:1px solid var(--rule-2)}.stats>div:nth-child(2n){border-right:0}.stats>div:nth-child(odd){padding-left:0}.stats>div:nth-child(even){padding-left:18px}}
+@media (max-width:760px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.stats>div:nth-child(2n){border-right:0}.stats>div:nth-child(odd){padding-left:0}.stats>div:nth-child(even){padding-left:18px}.stats>div{border-bottom:1px solid var(--rule-2)}}
 .map-h{display:flex;justify-content:space-between;align-items:end;gap:20px;flex-wrap:wrap;margin-top:clamp(56px,8vh,96px)}
 .map-h .t-3{margin-top:16px}
 .map-ctl{display:flex;gap:10px;flex-wrap:wrap}
@@ -551,7 +550,7 @@ def welcome():
     addresses = " ".join(f'<span>{esc(s["name"])} · {esc(s["district"])}</span>' for s in SITES)
     return f'''
 <section id="welcome" aria-label="Welcome">
-  <div class="bg"><img src="assets/lc-dusk.jpg" alt="" fetchpriority="high"></div>
+  <div class="bg"><img src="assets/cova-corner.jpg" alt="" fetchpriority="high"></div>
   <div class="meta"><span>Mizan Qist Limited · Private client</span><span class="mono">Confidential · {esc(DATE)}</span></div>
   <div class="stage">
     <div class="eyebrow w-eye">Private portfolio · Abuja · Ten addresses</div>
@@ -571,9 +570,9 @@ def brief():
   <div class="lhs rv"><div class="eyebrow">Your brief</div><h2 class="t-2">Ten addresses,<br>one file.</h2><p class="small">Compiled {esc(DATE)} · Prices as quoted by the developers and owners · Confidential, prepared for {esc(CLIENT)}</p></div>
   <div class="letter rv-stag">
     <p class="sal">Your Excellency,</p>
-    <p>Following your instruction to source residential property in Abuja, we have compiled the ten addresses in this file. Nine are in the capital: four in Maitama, and one each in Wuse II, Katampe Extension, Mabushi District, Guzape and Asokoro. The tenth, Cova Manor in Victoria Island, Lagos, we include for a base of matching quality outside the capital.</p>
+    <p>We have sourced and compiled the ten addresses in this file. Nine are in the capital: four in Maitama, and one each in Wuse II, Katampe Extension, Mabushi District, Guzape and Asokoro. The tenth, Cova Manor in Victoria Island, Lagos, we include for a base of matching quality outside the capital.</p>
     <p>Each dossier carries the address, the house types and prices as quoted to us, the state of the site where we have photographed it, the concept where drawings exist, and our view. Off-plan prices are as at {esc(DATE)} and subject to the developer's confirmation. Where we recommend a course of action we say so plainly; Mississippi Street is one such case.</p>
-    <p>Your desk is open at any hour. Mark the addresses that interest you and we will arrange viewings, drawings and introductions in the order you prefer.</p>
+    <p>Your desk is open at any hour. Mark the addresses that interest you and we will arrange viewings and drawings in the order you prefer.</p>
     <div class="sig">{FLOURISH}<b>Sadiq Babalele</b><span>For Mizan Qist Limited · Real Estate Advisory</span></div>
   </div>
  </div>
@@ -599,6 +598,8 @@ def map_data():
     return [dict(id=x["id"], n=x["n"], name=x["name"], addr=x["addr"], price=x["price"], status=x["status"], ll=list(x["ll"]) if x["ll"] else None, gmaps=x["gmaps"], approx=x["approx"], city=x["city"], district=x["district"], route=ROUTES.get(x["id"])) for x in SITES]
 
 def glance():
+    n_sell = sum(1 for x in SITES if x["status"] == "Selling"); n_off = sum(1 for x in SITES if x["status"] == "Off-plan")
+    assert n_sell + n_off == len(SITES), "a status other than Selling / Off-plan needs its own tile"
     ORDER = ["Maitama", "Wuse II", "Katampe Ext.", "Mabushi District", "Guzape", "Asokoro", "Victoria Island, Lagos"]
     groups = [(g, []) for g in ORDER]
     for x in SITES:
@@ -620,9 +621,8 @@ def glance():
   <div class="stats rv-stag" style="margin-top:clamp(36px,5vh,56px)">
     <div><div class="v num"><span data-count="10">10</span></div><div class="k">Addresses</div></div>
     <div><div class="v num"><span data-count="7">7</span></div><div class="k">Districts</div></div>
-    <div><div class="v num"><span data-count="201">201</span></div><div class="k">Homes across the schemes</div></div>
     <div><div class="v rng">₦350m<small>to</small> ₦6.6bn</div><div class="k">Price range</div></div>
-    <div><div class="v num"><span data-count="2">2</span><small>·</small><span data-count="3">3</span><small>·</small><span data-count="5">5</span></div><div class="k">Ready · selling · off-plan</div></div>
+    <div><div class="v num"><span data-count="{n_sell}">{n_sell}</span><small>·</small><span data-count="{n_off}">{n_off}</span></div><div class="k">Selling · off-plan</div></div>
   </div>
   <div class="map-h rv"><div><div class="eyebrow">The map</div><h3 class="t-3">Every address, and the drive to the centre, <em class="t-i">on one map.</em></h3></div>
    <div class="map-ctl"><div class="seg" role="group" aria-label="Map layer"><button type="button" data-layer="streets" aria-pressed="true">Streets</button><button type="button" data-layer="aerial" aria-pressed="false">Aerial</button></div><div class="seg" role="group" aria-label="View"><button type="button" data-city="Maitama" aria-pressed="false">Maitama</button><button type="button" data-city="Abuja" aria-pressed="true">Abuja</button><button type="button" data-city="Lagos" aria-pressed="false">Lagos</button></div></div></div>
@@ -644,7 +644,7 @@ def ledger():
         availcell = "" if s["avail"]=="—" else '<span class="small"> · ' + esc(s["avail"]) + ' avail.</span>'
         rows += f'''<tr data-go="{s["id"]}" data-n="{s["n"]}" data-price="{price_sort}" data-status="{STATUS_ORDER[s["status"]]}">
 <td class="k">{s["n"]}</td><td class="nm">{esc(s["name"])}<small>{esc(s["addr"])}</small></td>
-<td>{esc(types)}</td><td class="num">{esc(s["beds"])}</td><td class="num">{esc(s["units"])}{availcell}</td><td class="pr">{esc(s["price"])}</td><td>{chip(s["status"])}</td><td class="vw">{esc(s["short"])}</td><td class="star-c st">{star(s)}</td></tr>'''
+<td>{esc(types)}</td><td class="num">{esc(s["beds"])}</td><td class="num">{s.get("homes_cell") or (esc(s["units"]) + availcell)}</td><td class="pr">{esc(s["price"])}</td><td>{chip(s["status"])}</td><td class="vw">{esc(s["short"])}</td><td class="star-c st">{star(s)}</td></tr>'''
     return f'''
   <div class="ledger-h rv"><div><div class="eyebrow">The ledger</div><h2 class="t-2">Every address on one page.</h2></div>
    <div class="sorts" role="group" aria-label="Sort the ledger"><button type="button" class="on" data-sort="n">In order</button><button type="button" data-sort="price">By price</button><button type="button" data-sort="status">By status</button></div></div>
@@ -687,9 +687,9 @@ def credits_html(s):
     if s["dev"]: lines.append(f'<span><b>Developer</b> · {esc(s["dev"])}</span>')
     if s["arch"]: lines.append(f'<span><b>Architect</b> · {esc(s["arch"])}</span>')
     src = "Mizan Qist residential portfolio, August 2026"
-    if s["id"] == "d01": src += "; Maitama View brochure and working drawings"
-    if s["id"] == "d10": src += "; Cova Manor brochure and construction documentation"
-    if s["id"] == "d04": src += "; Heights 777 brochure and drawings"
+    if s["name"] == "Maitama View": src += "; Maitama View brochure and working drawings; gate design drawings, September 2026"
+    if s["name"] == "Cova Manor": src += "; Cova Manor brochure and construction documentation"
+    if s["name"] == "Heights 777": src += "; Heights 777 brochure and drawings"
     lines.append(f'<span><b>Source</b> · {esc(src)}</span>')
     return f'<div class="credits">{"".join(lines)}</div>'
 
@@ -716,12 +716,12 @@ def dossier(s, shade, flip):
     availtxt = "Availability on request" if s["avail"]=="—" else "<b>" + esc(s["avail"]) + "</b> available"
     head = f'''<div class="head rv-stag">
     <div><div class="eyebrow">{esc(s["street"])}{(" · " + esc(s["plot"])) if s["plot"] else ""}</div><h2 class="nm">{esc(s["name"])}</h2>{f'<p class="sc">{esc(s["scheme"])}</p>' if s["scheme"] else ""}
-      <div class="addr"><span><b>{esc(s["addr"])}</b></span><span><b>{esc(s["units"])}</b> {"home" if s["units"]=="1" else "homes"} in the scheme</span><span>{availtxt}</span><a class="gm" href="{esc(s["gmaps"])}" target="_blank" rel="noopener">Open in Google Maps{" · nearest pin" if s["approx"]=="nearest" else " · street" if s["approx"]=="street" else " · district, approximate" if s["approx"]=="district" else ""} {ARROW}</a></div></div>
+      <div class="addr"><span><b>{esc(s["addr"])}</b></span>{s.get("units_line") and f'<span>{s["units_line"]}</span>' or f'<span><b>{esc(s["units"])}</b> {"home" if s["units"]=="1" else "homes"} in the scheme</span><span>{availtxt}</span>'}<a class="gm" href="{esc(s["gmaps"])}" target="_blank" rel="noopener">Open in Google Maps{" · nearest pin" if s["approx"]=="nearest" else " · street" if s["approx"]=="street" else " · district, approximate" if s["approx"]=="district" else ""} {ARROW}</a></div></div>
     <div class="pr"><div class="v">{esc(s["price"])}</div><div class="k">{"Price band" if "–" in s["price"] else "Price"} · {esc(s["beds"])} bedrooms</div></div></div>'''
     left = facts_html(s) + types_html(s)
     view = f'<div class="view"><div class="eyebrow">Our view</div><p>{esc(s["view"])}</p></div>'
-    if s["id"] == "d08":
-        view += '''<div class="reco rv"><div class="eyebrow">Recommendation</div><div class="t">Best use: demolition and new construction.</div><p>Buy the plot for its street and its ground. Clear the existing house and chalet, and build a new residence to your brief, rather than renovate a building that has reached the end of its life.</p></div>
+    if s["name"] == "Mississippi":
+        view += '''<div class="reco rv"><div class="eyebrow">Recommendation</div><div class="t">Best use: demolition and new construction.</div><p>Buy the plot for its street and its ground. Clear the existing house and chalet, and build a new residence to your brief, rather than renovate a building that has reached the end of its life. Mizan Qist is in construction and can take on the project, from design to handover.</p></div>
 <div class="steps"><div><b>I</b><span>A private viewing, arranged with the owner's consent and at a time of his choosing.</span></div><div><b>II</b><span>A survey of the plot and a search of the title before any offer.</span></div><div><b>III</b><span>A concept design for the new residence, so that the purchase and the build are priced together.</span></div></div>'''
     right = view + credits_html(s)
     if kind == "wide":
@@ -730,7 +730,7 @@ def dossier(s, shade, flip):
         body = f'<div class="body split{" flip" if flip else ""}"><div class="sticky rv">{diagram_svg()}</div><div class="rv">{left}{right}</div></div>'
     else:
         pcls = {"split": "sp", "tall": "tall"}.get(kind, "sp")
-        if s["id"] == "d10": pcls = "sq"
+        if s["name"] == "Cova Manor": pcls = "sq"
         body = f'<div class="body split{" flip" if flip else ""}"><div class="sticky">{plate_html(s, pcls)}</div><div class="rv">{left}{right}</div></div>'
     return f'''
 <section class="pg dz" id="{s["id"]}" data-shade="{shade}" data-n="{n}" data-name="{esc(s["name"])}" aria-label="Dossier {n}, {esc(s["name"])}">
@@ -747,7 +747,7 @@ def desk():
     return f'''
 <section class="pg" id="desk" aria-label="Your desk">
  <div class="wrap">
-  <div class="rv"><div class="eyebrow">Your desk</div><h2 class="t-2">Open at any hour.</h2><p class="lede" style="margin-top:22px;color:var(--mute)">Everything in this file can be set in motion with one message: a private viewing, the full drawings, a valuation, or an introduction to a developer or an owner. {esc(AGENT)} holds your file.</p></div>
+  <div class="rv"><div class="eyebrow">Your desk</div><h2 class="t-2">Open at any hour.</h2><p class="lede" style="margin-top:22px;color:var(--mute)">Everything in this file can be set in motion with one message: a private viewing, the full drawings, or a valuation. {esc(AGENT)} holds your file.</p></div>
   <div class="desk-g">
    <div class="rv">
     <div class="contacts">
@@ -761,7 +761,7 @@ def desk():
    <div class="rv">
     <div class="next">
      <div><b>I</b><div><h3>Mark your shortlist</h3><p>Use the star on any dossier or ledger row. Your selection is kept on this device and listed below.</p></div></div>
-     <div><b>II</b><div><h3>We arrange the viewings</h3><p>Site visits, walk-throughs of the drawings and meetings with the developers, in the order you prefer and at the hours that suit you.</p></div></div>
+     <div><b>II</b><div><h3>We arrange the viewings</h3><p>Site visits and walk-throughs of the drawings, in the order you prefer and at the hours that suit you.</p></div></div>
      <div><b>III</b><div><h3>We negotiate and complete</h3><p>Offers, title checks, contracts and, where you choose carcass or new build, the design and finishing to follow.</p></div></div>
     </div>
     <div class="sl-box" id="slbox"><div class="eyebrow">Your shortlist</div><h3 class="t-3">Addresses you have marked.</h3><ul id="sllist"></ul><p class="empty" id="slempty">Nothing marked yet. Star a dossier to add it here.</p>
@@ -976,11 +976,11 @@ function openLb(el){
 function resetZoom(){ z={s:1,x:0,y:0}; lb.classList.remove('zoomed'); [lbA,lbB].forEach(i=>i.style.transform=''); }
 function applyZoom(){ lbActive.style.transform='translate('+z.x+'px,'+z.y+'px) scale('+z.s+')'; lb.classList.toggle('zoomed',z.s>1); }
 function show(i){
-  lbI=(i+lbList.length)%lbList.length; const it=lbList[lbI];
+  lbI=(i+lbList.length)%lbList.length; const it=lbList[lbI], myI=lbI;
   resetZoom();
   const next=lbActive===lbA?lbB:lbA, prev=lbActive;
   prev.classList.remove('on');
-  const swap=()=>{ next.src=it.src; next.alt=it.cap; const on=()=>{ next.classList.add('on'); lbActive=next; }; if(next.complete&&next.naturalWidth) on(); else next.addEventListener('load',on,{once:true}); };
+  const swap=()=>{ let done=false; const on=()=>{ if(done||lbI!==myI) return; done=true; next.classList.add('on'); lbActive=next; }; next.onload=on; next.onerror=on; next.alt=it.cap; next.src=it.src; if(next.complete&&next.naturalWidth) on(); else if(next.decode) next.decode().then(on).catch(()=>{}); };
   setTimeout(swap, rm?0:240);
   $('#lbcap').textContent=it.cap; $('#lbgroup').textContent=it.g; $('#lbct').textContent=String(lbI+1).padStart(2,'0')+' / '+String(lbList.length).padStart(2,'0');
   const pre=new Image(); pre.src=lbList[(lbI+1)%lbList.length].src;
