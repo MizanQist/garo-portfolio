@@ -843,9 +843,10 @@ const rm=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const touch=matchMedia('(hover: none)').matches;
 let lockY=0, locks=0;
 function lockScroll(){ if(locks++>0) return; lockY=window.scrollY||window.pageYOffset||0; body.style.top=(-lockY)+'px'; body.classList.add('locked'); }
-function unlockScroll(){ if(locks===0||--locks>0) return; body.classList.remove('locked'); body.style.top=''; const y=lockY; window.scrollTo(0,y); requestAnimationFrame(()=>{ window.scrollTo(0,y); setTimeout(()=>window.scrollTo(0,y),60); }); }
+function jump(y){ const de=document.documentElement, prev=de.style.scrollBehavior; de.style.scrollBehavior='auto'; window.scrollTo(0,y); de.style.scrollBehavior=prev; }
+function unlockScroll(){ if(locks===0||--locks>0) return; body.classList.remove('locked'); body.style.top=''; const y=lockY; jump(y); requestAnimationFrame(()=>{ jump(y); setTimeout(()=>jump(y),60); }); }
 const R=s=>(s&&window.__A&&window.__A[s.replace(/^assets\//,'')])||s;
-const useM=Math.min(innerWidth,innerHeight)<=900;
+const useM=Math.min(innerWidth,innerHeight)<=700;
 const M=s=>(useM&&/^assets\/[\w-]+\.jpg$/.test(s))?s.replace('assets/','assets/m/'):s;
 const body=document.body;
 
