@@ -15,6 +15,7 @@ for n in names:
     A[n] = f"data:{mime};base64," + base64.b64encode(buf.getvalue()).decode()
 out = re.sub(r'data-src="assets/([\w\-.]+)"', r'data-src="\1"', src)   # lightbox sources, resolved at open time
 out = re.sub(r'(?<![\w-])src="assets/([\w\-.]+)"', r'data-a="\1"', out)  # <img src> only, never data-src
+out = re.sub(r' srcset="[^"]*" sizes="[^"]*"', '', out)  # the preview inlines one edition per image
 # packed map tiles + inlined Leaflet for the preview (tiles fetched by the session's tiles.py into TILES_DIR)
 TILES_DIR = os.environ.get("TILES_DIR", "")
 pack = {"osm": {}, "esri": {}}
