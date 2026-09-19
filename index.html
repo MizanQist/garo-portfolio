@@ -1039,7 +1039,7 @@ lbst.addEventListener('wheel',e=>{ if(!lbOpen) return; e.preventDefault(); const
   const coarse=matchMedia('(pointer:coarse)').matches;
   function init(){
     const maxZ=PACK?16:19;
-    map=L.map('lmap',{zoomControl:false,scrollWheelZoom:false,dragging:!coarse,zoomSnap:.5,minZoom:PACK?11:5,maxZoom:maxZ,attributionControl:true});
+    map=L.map('lmap',{zoomControl:false,scrollWheelZoom:false,dragging:!coarse,zoomSnap:.5,minZoom:PACK?6:5,maxZoom:maxZ,attributionControl:true});
     map.attributionControl.setPrefix('<a href="https://leafletjs.com" target="_blank" rel="noopener">Leaflet</a>');
     L.control.zoom({position:'topleft'}).addTo(map); L.control.scale({imperial:false,position:'bottomleft',maxWidth:130}).addTo(map);
     const OSM='&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors', ESRI='Imagery &copy; Esri, Maxar, Earthstar Geographics';

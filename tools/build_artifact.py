@@ -31,7 +31,7 @@ if TILES_DIR and os.path.isdir(TILES_DIR):
             lat = math.degrees(math.atan(math.sinh(math.pi * (1 - 2 * (yi + 0.5) / 2 ** zi))))
             if kind == "esri" and zi >= 15 and lat > 7.5: continue  # aerial stays at city zooms in Abuja; Cova keeps its close-ups
             im = Image.open(os.path.join(d, f)).convert("RGB"); buf = io.BytesIO()
-            im.save(buf, "JPEG", quality=72 if kind == "osm" else 62, optimize=True)
+            im.save(buf, "JPEG", quality=60 if kind == "osm" else 52, optimize=True)
             pack[kind][f"{z}/{x}/{y}"] = "data:image/jpeg;base64," + base64.b64encode(buf.getvalue()).decode()
     if not pack["esri"]: pack.pop("esri")
 leaflet_css = open(os.path.join(ROOT, "assets", "leaflet", "leaflet.css"), encoding="utf-8").read()
