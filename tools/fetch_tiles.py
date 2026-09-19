@@ -21,7 +21,8 @@ for z in range(6, 14): osm |= view(*ABJ, z, 8, 5)           # country to distric
 for z in range(9, 14): osm |= view(*LAG, z)                 # Lagos from region to district
 osm |= box(*AB, 14)                                         # the Abuja box at street zoom
 for ll in abuja + [CBD]: osm |= around(ll[0], ll[1], 15)    # close-ups at every pin
-for z in (14, 15, 16): osm |= around(cova[0], cova[1], z, 2 if z == 14 else 1)
+for z in (14, 15): osm |= view(6.428, 3.424, z, 8, 5)              # the Lagos view: Cova Manor and the Eko Hotel together
+osm |= around(cova[0], cova[1], 16)
 esri |= box(*AB, 13) | box(*AB, 14)                         # aerial at district and street zooms
 for z in (15, 16): esri |= around(cova[0], cova[1], z)
 print("planned osm", len(osm), "esri", len(esri), flush=True)
