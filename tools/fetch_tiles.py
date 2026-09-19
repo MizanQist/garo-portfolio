@@ -1,6 +1,6 @@
 # Fetches the map tiles that build_artifact.py packs into the preview (TILES_DIR=tools/tiles). OSM z11-14 over the
 # Abuja box plus z15 around each pin and the CBD; z12-16 around Cova Manor; Esri aerial z13-14 Abuja and z15-16 at Cova.
-import math, os, time, urllib.request, sys
+import math, os, re, time, urllib.request, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from data import SITES
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tiles")
@@ -17,12 +17,12 @@ def view(lat, lon, z, w=6, h=4):
     """tiles around a point covering w x h tiles (a desktop viewport is about 5.6 x 3.5 tiles)"""
     x, y = t(lat, lon, z); return {(z, x + dx, y + dy) for dx in range(-w // 2, w - w // 2) for dy in range(-h // 2, h - h // 2)}
 ABJ, LAG = (9.06, 7.49), (6.43, 3.42)
-for z in range(6, 14): osm |= view(*ABJ, z)                 # country to district zooms around Abuja
+for z in range(6, 14): osm |= view(*ABJ, z, 8, 5)           # country to district zooms around Abuja, with panning margin
 for z in range(9, 14): osm |= view(*LAG, z)                 # Lagos from region to district
 osm |= box(*AB, 14)                                         # the Abuja box at street zoom
 for ll in abuja + [CBD]: osm |= around(ll[0], ll[1], 15)    # close-ups at every pin
 for z in (14, 15, 16): osm |= around(cova[0], cova[1], z, 2 if z == 14 else 1)
-esri |= view(*ABJ, 12) | box(*AB, 13) | box(*AB, 14)        # aerial at district and street zooms
+esri |= box(*AB, 13) | box(*AB, 14)                         # aerial at district and street zooms
 for z in (15, 16): esri |= around(cova[0], cova[1], z)
 print("planned osm", len(osm), "esri", len(esri), flush=True)
 os.makedirs(os.path.join(OUT, "osm"), exist_ok=True); os.makedirs(os.path.join(OUT, "esri"), exist_ok=True)
@@ -40,5 +40,6 @@ for z, x, y in sorted(esri): get(f"https://server.arcgisonline.com/ArcGIS/rest/s
 for kind, keep, ext in (("osm", osm, ".png"), ("esri", esri, ".jpg")):
     d = os.path.join(OUT, kind)
     for f in os.listdir(d):
-        if f.endswith(ext) and tuple(int(v) for v in f[:-len(ext)].split("_")) not in keep: os.remove(os.path.join(d, f))
+        if not re.fullmatch(r"\d+_\d+_\d+" + re.escape(ext), f): os.remove(os.path.join(d, f)); continue
+        if tuple(int(v) for v in f[:-len(ext)].split("_")) not in keep: os.remove(os.path.join(d, f))
 print("DONE osm", len(os.listdir(os.path.join(OUT, "osm"))), "esri", len(os.listdir(os.path.join(OUT, "esri"))), flush=True)

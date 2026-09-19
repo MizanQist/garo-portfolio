@@ -25,7 +25,7 @@ if TILES_DIR and os.path.isdir(TILES_DIR):
         if not os.path.isdir(d): continue
         import math
         for f in sorted(os.listdir(d)):
-            if not f.endswith(ext): continue
+            if not re.fullmatch(r"\d+_\d+_\d+" + re.escape(ext), f): continue
             z, x, y = f[:-len(ext)].split("_")
             zi, yi = int(z), int(y)
             lat = math.degrees(math.atan(math.sinh(math.pi * (1 - 2 * (yi + 0.5) / 2 ** zi))))
@@ -33,7 +33,7 @@ if TILES_DIR and os.path.isdir(TILES_DIR):
             im = Image.open(os.path.join(d, f)); buf = io.BytesIO()
             if kind == "osm": im = im.convert("L")   # street tiles are shown in monochrome, so store them that way
             else: im = im.convert("RGB")
-            im.save(buf, "JPEG", quality=60 if kind == "osm" else 52, optimize=True)
+            im.save(buf, "JPEG", quality=48 if kind == "osm" else 50, optimize=True)
             pack[kind][f"{z}/{x}/{y}"] = "data:image/jpeg;base64," + base64.b64encode(buf.getvalue()).decode()
     if not pack["esri"]: pack.pop("esri")
 leaflet_css = open(os.path.join(ROOT, "assets", "leaflet", "leaflet.css"), encoding="utf-8").read()
