@@ -13,19 +13,18 @@ def around(lat, lon, z, r=1):
 AB = (8.995, 9.115, 7.415, 7.545); CBD = (9.0508926, 7.4929880)
 abuja = [s["ll"] for s in SITES if s["ll"] and s["city"] == "Abuja"]; cova = [s["ll"] for s in SITES if s["city"] == "Lagos"][0]
 osm, esri = set(), set()
-# wide context so the preview can zoom out: the country, then the two city regions, then the Abuja box
-osm |= box(4.0, 14.0, 2.5, 14.5, 6)                      # Nigeria
-osm |= box(5.5, 10.5, 2.5, 9.0, 7) | box(5.5, 10.5, 2.5, 9.0, 8)   # Abuja and Lagos regions
-for z in (9, 10): osm |= box(8.6, 9.6, 7.0, 8.0, z) | box(6.2, 6.8, 3.0, 3.8, z)
-osm |= box(8.8, 9.35, 7.25, 7.75, 11) | box(6.3, 6.6, 3.2, 3.6, 11)
-osm |= box(8.9, 9.25, 7.3, 7.65, 12)
-osm |= box(8.95, 9.15, 7.38, 7.58, 13)
-for z in (11, 12, 13, 14): osm |= box(*AB, z)
-esri |= box(8.9, 9.25, 7.3, 7.65, 11) | box(*AB, 12)
-for ll in abuja + [CBD]: osm |= around(ll[0], ll[1], 15)
-for z in (12, 13, 14, 15, 16): osm |= around(cova[0], cova[1], z)
-for z in (13, 14): esri |= box(*AB, z)
+def view(lat, lon, z, w=6, h=4):
+    """tiles around a point covering w x h tiles (a desktop viewport is about 5.6 x 3.5 tiles)"""
+    x, y = t(lat, lon, z); return {(z, x + dx, y + dy) for dx in range(-w // 2, w - w // 2) for dy in range(-h // 2, h - h // 2)}
+ABJ, LAG = (9.06, 7.49), (6.43, 3.42)
+for z in range(6, 14): osm |= view(*ABJ, z)                 # country to district zooms around Abuja
+for z in range(9, 14): osm |= view(*LAG, z)                 # Lagos from region to district
+osm |= box(*AB, 14)                                         # the Abuja box at street zoom
+for ll in abuja + [CBD]: osm |= around(ll[0], ll[1], 15)    # close-ups at every pin
+for z in (14, 15, 16): osm |= around(cova[0], cova[1], z, 2 if z == 14 else 1)
+esri |= view(*ABJ, 12) | box(*AB, 13) | box(*AB, 14)        # aerial at district and street zooms
 for z in (15, 16): esri |= around(cova[0], cova[1], z)
+print("planned osm", len(osm), "esri", len(esri), flush=True)
 os.makedirs(os.path.join(OUT, "osm"), exist_ok=True); os.makedirs(os.path.join(OUT, "esri"), exist_ok=True)
 UA = {"User-Agent": "MizanQist-brochure/1.0 (nabildeealee@icloud.com)"}
 def get(url, path):
@@ -37,4 +36,9 @@ def get(url, path):
     print("FAILED", url, flush=True)
 for z, x, y in sorted(osm): get(f"https://tile.openstreetmap.org/{z}/{x}/{y}.png", os.path.join(OUT, "osm", f"{z}_{x}_{y}.png")); time.sleep(0.12)
 for z, x, y in sorted(esri): get(f"https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", os.path.join(OUT, "esri", f"{z}_{x}_{y}.jpg")); time.sleep(0.08)
+# prune tiles that are no longer in the plan, so the preview pack stays within budget
+for kind, keep, ext in (("osm", osm, ".png"), ("esri", esri, ".jpg")):
+    d = os.path.join(OUT, kind)
+    for f in os.listdir(d):
+        if f.endswith(ext) and tuple(int(v) for v in f[:-len(ext)].split("_")) not in keep: os.remove(os.path.join(d, f))
 print("DONE osm", len(os.listdir(os.path.join(OUT, "osm"))), "esri", len(os.listdir(os.path.join(OUT, "esri"))), flush=True)

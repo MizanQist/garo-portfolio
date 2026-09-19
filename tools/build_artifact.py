@@ -10,8 +10,8 @@ for n in names:
     if n.endswith(".png"):
         im.thumbnail((1400, 1400)); buf = io.BytesIO(); im.save(buf, "PNG", optimize=True); mime = "image/png"
     else:
-        mx = 1500 if n == "cova-corner.jpg" else 1000
-        im = im.convert("RGB"); im.thumbnail((mx, mx)); buf = io.BytesIO(); im.save(buf, "JPEG", quality=66 if n == "cova-corner.jpg" else 52, optimize=True, progressive=True); mime = "image/jpeg"
+        mx = 1500 if n == "cova-corner.jpg" else 960
+        im = im.convert("RGB"); im.thumbnail((mx, mx)); buf = io.BytesIO(); im.save(buf, "JPEG", quality=66 if n == "cova-corner.jpg" else 49, optimize=True, progressive=True); mime = "image/jpeg"
     A[n] = f"data:{mime};base64," + base64.b64encode(buf.getvalue()).decode()
 out = re.sub(r'data-src="assets/([\w\-.]+)"', r'data-src="\1"', src)   # lightbox sources, resolved at open time
 out = re.sub(r'(?<![\w-])src="assets/([\w\-.]+)"', r'data-a="\1"', out)  # <img src> only, never data-src
@@ -30,7 +30,9 @@ if TILES_DIR and os.path.isdir(TILES_DIR):
             zi, yi = int(z), int(y)
             lat = math.degrees(math.atan(math.sinh(math.pi * (1 - 2 * (yi + 0.5) / 2 ** zi))))
             if kind == "esri" and zi >= 15 and lat > 7.5: continue  # aerial stays at city zooms in Abuja; Cova keeps its close-ups
-            im = Image.open(os.path.join(d, f)).convert("RGB"); buf = io.BytesIO()
+            im = Image.open(os.path.join(d, f)); buf = io.BytesIO()
+            if kind == "osm": im = im.convert("L")   # street tiles are shown in monochrome, so store them that way
+            else: im = im.convert("RGB")
             im.save(buf, "JPEG", quality=60 if kind == "osm" else 52, optimize=True)
             pack[kind][f"{z}/{x}/{y}"] = "data:image/jpeg;base64," + base64.b64encode(buf.getvalue()).decode()
     if not pack["esri"]: pack.pop("esri")

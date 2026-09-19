@@ -1052,6 +1052,7 @@ lbst.addEventListener('wheel',e=>{ if(!lbOpen) return; e.preventDefault(); const
       aerial=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxNativeZoom:19,maxZoom:19,attribution:ESRI});
     }
     if(!aerial) $$('[data-layer]').forEach(b=>b.closest('.seg').hidden=true);
+    if(PACK) map.setMaxBounds(L.latLngBounds([[3.0,-1.0],[13.5,15.0]]));
     streets.addTo(map);
     let tilesOk=false; streets.on('tileload',()=>{ tilesOk=true; wrap.classList.add('ready'); }); streets.on('tileerror',()=>{ if(!tilesOk&&!PACK) fail(); });
     setTimeout(()=>{ if(!tilesOk){ if(PACK) wrap.classList.add('ready'); else fail(); } },9000);
