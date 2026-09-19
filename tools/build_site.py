@@ -1,4 +1,4 @@
-# Generates index.html for a client copy of the portfolio from data.py and client.py. Run: python3 tools/build_site.py
+# Generates index.html for this client's portfolio from data.py and client.py. Run: python3 tools/build_site.py
 import os, sys, html as H
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from data import SITES, CLIENT, CLIENT_SHORT, CLIENT_GREETING, CLIENT_SALUTATION, CLIENT_SURNAME, CLIENT_SIGNOFF, SLUG, AGENT, DATE

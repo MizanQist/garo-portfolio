@@ -1,4 +1,4 @@
-# Content for the private portfolio (shared by every client copy; the client is set in client.py). Prices, unit counts and statuses are as quoted in the
+# Content for this client's portfolio (the client is named in client.py). Edit freely: each client's site is independent. Prices, unit counts and statuses are as quoted in the
 # Mizan Qist residential portfolio (MQ Portfolio 2.html, August 2026); Lake Chad and Cova Manor
 # facts come from the Maitama View and Cova Manor brochures.
 

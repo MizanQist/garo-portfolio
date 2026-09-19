@@ -1,5 +1,4 @@
-# The client this copy of the portfolio is prepared for. Everything else (data.py, build_site.py, assets) is shared
-# across the client copies; tools/propagate.py in the Garo folder pushes shared files to the sibling copies.
+# The client this site is prepared for. This site is independent: its content (tools/data.py), code and assets are its own.
 CLIENT = "H.E. Murtala Sule Garo"          # full form: "prepared for ..."
 CLIENT_SHORT = "Mr Garo"                   # the large name on the welcome page
 CLIENT_GREETING = "Welcome back, Your Excellency,"   # italic line above the name
