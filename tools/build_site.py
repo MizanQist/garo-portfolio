@@ -1,7 +1,8 @@
-# Generates index.html for the Garo Private Portfolio from data.py. Run: python3 tools/build_site.py
+# Generates index.html for a client copy of the portfolio from data.py and client.py. Run: python3 tools/build_site.py
 import os, sys, html as H
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from data import SITES, CLIENT, CLIENT_SHORT, CLIENT_GREETING, AGENT, DATE
+from data import SITES, CLIENT, CLIENT_SHORT, CLIENT_GREETING, CLIENT_SALUTATION, CLIENT_SURNAME, CLIENT_SIGNOFF, SLUG, AGENT, DATE
+import urllib.parse
 import json
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -598,7 +599,7 @@ def brief():
  <div class="wrap brief-g">
   <div class="lhs rv"><div class="eyebrow">Your brief</div><h2 class="t-2">Ten addresses,<br>one file.</h2><p class="small">Compiled {esc(DATE)} · Prices as quoted by the developers and owners · Confidential, prepared for {esc(CLIENT)}</p></div>
   <div class="letter rv-stag">
-    <p class="sal">Your Excellency,</p>
+    <p class="sal">{esc(CLIENT_SALUTATION)}</p>
     <p>We have sourced and compiled the ten addresses in this file. Nine are in the capital: four in Maitama, and one each in Wuse II, Katampe Extension, Mabushi District, Guzape and Asokoro. The tenth, Cova Manor in Victoria Island, Lagos, we include for a base of matching quality outside the capital.</p>
     <p>Each dossier carries the address, the house types and prices as quoted to us, the state of the site where we have photographed it, the concept where drawings exist, and our view. Off-plan prices are as at {esc(DATE)} and subject to the developer's confirmation. Where we recommend a course of action we say so plainly; Mississippi Street is one such case.</p>
     <p>Your desk is open at any hour. Mark the addresses that interest you and we will arrange viewings and drawings in the order you prefer.</p>
@@ -785,7 +786,7 @@ def desk():
     <div class="contacts">
      <a href="https://wa.me/message/CL4UJVGMQEHBK1?src=qr" target="_blank" rel="noopener"><span class="v">+44 7931 814601<small>Mizan Qist · United Kingdom</small></span><span class="chip">WhatsApp</span></a>
      <a href="tel:+2348086666206"><span class="v">+234 808 6666 206<small>Mizan Qist · Abuja</small></span><span class="chip">Call now</span></a>
-     <a href="mailto:mizanqistltd@gmail.com?subject=Portfolio%20for%20H.E.%20Murtala%20Sule%20Garo"><span class="v">mizanqistltd@gmail.com<small>Email</small></span><span class="chip">Write</span></a>
+     <a href="mailto:mizanqistltd@gmail.com?subject={urllib.parse.quote("Portfolio for " + CLIENT)}"><span class="v">mizanqistltd@gmail.com<small>Email</small></span><span class="chip">Write</span></a>
      <a href="https://www.instagram.com/mizanqistltd?stkn=MTNvcmwzc2F5MjVvMQ%3D%3D&amp;utm_source=qr" target="_blank" rel="noopener"><span class="v">@mizanqistltd<small>Instagram</small></span><span class="chip">Follow</span></a>
     </div>
     <div class="agent"><div class="av">SB</div><div><b>{esc(AGENT)}</b><span>Your agent · Mizan Qist Limited · Abuja</span></div></div>
@@ -820,7 +821,7 @@ def chrome():
 <div id="veil" aria-hidden="true"><div class="mark">{MARK}</div><div class="vt">Preparing your portfolio</div><div class="bar"><i id="vbar"></i></div><div class="ct" id="vct">00</div></div>
 <header class="top">
   <a class="brand" href="#welcome" data-go="welcome">{MARK}<span><b>Mizan Qist</b><small>Private client</small></span></a>
-  <div class="ttl">The <em>Garo</em> Portfolio</div>
+  <div class="ttl">The <em>{esc(CLIENT_SURNAME)}</em> Portfolio</div>
   <div class="acts"><button type="button" class="btn sl" data-go="desk" aria-label="Your shortlist"><span class="n" id="slcount"></span>Shortlist</button><button type="button" class="btn" id="idxbtn" aria-haspopup="dialog" aria-controls="index">Index</button></div>
 </header>
 <nav class="tabs" aria-label="Dossiers"><button type="button" class="sec" data-go="brief"><span class="l">Your brief</span><span class="k">Brief</span><i></i></button><button type="button" class="sec" data-go="collection"><span class="l">The collection</span><span class="k">All</span><i></i></button><button type="button" class="sec" data-go="glance"><span class="l">Map &amp; ledger</span><span class="k">Map</span><i></i></button>{tabs}<button type="button" class="sec" data-go="desk"><span class="l">Your desk</span><span class="k">Desk</span><i></i></button></nav>
@@ -972,7 +973,7 @@ $$('.gal-h .groups').forEach(g=>{
 });
 
 /* ---------- shortlist ---------- */
-const KEY='garo.shortlist';
+const KEY=__SLUG__+'.shortlist';
 const META={}; $$('section.dz').forEach(s=>{ META[s.id]={n:s.dataset.n,name:s.dataset.name,district:$('.run .c',s).textContent.trim()}; });
 let sl_=[]; try{ sl_=JSON.parse(localStorage.getItem(KEY)||'[]').filter(id=>META[id]); }catch(e){ sl_=[]; }
 function saveSl(){ try{ localStorage.setItem(KEY,JSON.stringify(sl_)); }catch(e){} }
@@ -988,7 +989,7 @@ function renderSl(){
   $('#slempty').hidden=sl_.length>0;
   let txt='Good day Sadiq. I have reviewed my portfolio.';
   if(sl_.length) txt+=' I would like to pursue:\n'+sl_.map(id=>META[id].n+' '+META[id].name+' ('+META[id].district+')').join('\n');
-  txt+='\n— M. S. Garo';
+  txt+='\n— '+__SIGNOFF__;
   $('#slsend').href='https://wa.me/447931814601?text='+encodeURIComponent(txt);
 }
 renderSl();
@@ -1151,7 +1152,7 @@ def build():
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>The Garo Portfolio</title>
+<title>The {esc(CLIENT_SURNAME)} Portfolio</title>
 <meta name="description" content="A private portfolio of ten residential addresses in Abuja and Lagos, prepared for {esc(CLIENT)} by Mizan Qist Limited.">
 <meta name="robots" content="noindex,nofollow">
 <meta name="theme-color" content="#0b0a08">
@@ -1163,16 +1164,17 @@ def build():
 </head>
 <body>
 '''
+    js = JS.replace('__SLUG__', json.dumps(SLUG)).replace('__SIGNOFF__', json.dumps(CLIENT_SIGNOFF))
     tail = f'''
 <script>window.GARO_MAP={json.dumps(map_data(), ensure_ascii=False)};window.GARO_LM={json.dumps(LANDMARKS, ensure_ascii=False)};</script>
-<script>{JS}</script>
+<script>{js}</script>
 </body>
 </html>
 '''
     page = head + content + tail
     with open(os.path.join(ROOT, "index.html"), "w", encoding="utf-8") as f: f.write(page)
     # artifact variant: no document wrapper; title + style at the top
-    art = f'<title>The Garo Portfolio</title>\n<style>{CSS}</style>\n<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gilda+Display&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,300;1,400&family=Instrument+Sans:wght@400;500;600&display=swap">\n' + content + f'\n<script>window.GARO_MAP={json.dumps(map_data(), ensure_ascii=False)};window.GARO_LM={json.dumps(LANDMARKS, ensure_ascii=False)};</script>\n<script>{JS}</script>\n'
+    art = f'<title>The {esc(CLIENT_SURNAME)} Portfolio</title>\n<style>{CSS}</style>\n<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gilda+Display&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,300;1,400&family=Instrument+Sans:wght@400;500;600&display=swap">\n' + content + f'\n<script>window.GARO_MAP={json.dumps(map_data(), ensure_ascii=False)};window.GARO_LM={json.dumps(LANDMARKS, ensure_ascii=False)};</script>\n<script>{js}</script>\n'
     with open(os.path.join(ROOT, "tools", "artifact-src.html"), "w", encoding="utf-8") as f: f.write(art)
     print("index.html", len(page)//1024, "KB")
 

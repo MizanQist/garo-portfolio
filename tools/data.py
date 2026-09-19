@@ -1,10 +1,8 @@
-# Content for the Garo Private Portfolio. Prices, unit counts and statuses are as quoted in the
+# Content for the private portfolio (shared by every client copy; the client is set in client.py). Prices, unit counts and statuses are as quoted in the
 # Mizan Qist residential portfolio (MQ Portfolio 2.html, August 2026); Lake Chad and Cova Manor
 # facts come from the Maitama View and Cova Manor brochures.
 
-CLIENT = "H.E. Murtala Sule Garo"
-CLIENT_SHORT = "Mr Garo"
-CLIENT_GREETING = "Welcome back, Your Excellency,"
+from client import CLIENT, CLIENT_SHORT, CLIENT_GREETING, CLIENT_SALUTATION, CLIENT_SURNAME, CLIENT_SIGNOFF, SLUG
 AGENT = "Mr Sadiq Babalele"
 DATE = "September 2026"
 

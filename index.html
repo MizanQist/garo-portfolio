@@ -948,7 +948,7 @@ $$('.gal-h .groups').forEach(g=>{
 });
 
 /* ---------- shortlist ---------- */
-const KEY='garo.shortlist';
+const KEY="garo"+'.shortlist';
 const META={}; $$('section.dz').forEach(s=>{ META[s.id]={n:s.dataset.n,name:s.dataset.name,district:$('.run .c',s).textContent.trim()}; });
 let sl_=[]; try{ sl_=JSON.parse(localStorage.getItem(KEY)||'[]').filter(id=>META[id]); }catch(e){ sl_=[]; }
 function saveSl(){ try{ localStorage.setItem(KEY,JSON.stringify(sl_)); }catch(e){} }
@@ -964,7 +964,7 @@ function renderSl(){
   $('#slempty').hidden=sl_.length>0;
   let txt='Good day Sadiq. I have reviewed my portfolio.';
   if(sl_.length) txt+=' I would like to pursue:\n'+sl_.map(id=>META[id].n+' '+META[id].name+' ('+META[id].district+')').join('\n');
-  txt+='\n— M. S. Garo';
+  txt+='\n— '+"M. S. Garo";
   $('#slsend').href='https://wa.me/447931814601?text='+encodeURIComponent(txt);
 }
 renderSl();
